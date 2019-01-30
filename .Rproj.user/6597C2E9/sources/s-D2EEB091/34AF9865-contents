@@ -1,0 +1,30 @@
+folder <- "//ad.monash.edu/home/User098/skandan/Documents/Research/Preprocessing_Anomalies_And_Instance_Spaces/To_Github/Data/Features_and_Performance/"
+features <- read.csv(paste(folder, "Features.csv", sep=""))
+usethis::use_data(features)
+
+perf_vals <- read.csv(paste(folder, "Performance_values.csv", sep=""))
+usethis::use_data(perf_vals)
+
+col_list <- c('SNR', 'OPO_Res_KNOut_95P_1', 'OPO_Out_DenOut_1_3', 'OPO_Den_Out_SD_3', 'OPO_Res_Out_95P_3', 'OPO_LocDenOut_Out_95P_1', 'OPO_GDeg_Out_Mean_1', 'OPO_GComp_PO_Q95_3')
+
+# ---- Getting absolute good performance
+abs_perfs <- apply(perf_vals, 2, function(x) ifelse(x>=0.8,1,0))
+usethis::use_data(abs_perfs)
+
+
+# ---- Getting relative good performance 5%
+rel_perfs_0.05 <- EpsilonGood(perf_vals, 0.05)
+usethis::use_data(rel_perfs_0.05)
+
+
+col_nums <- which(colnames(features) %in% col_list )
+ftr_subset <- features[,col_nums]
+
+
+apply(ftr_subset,2,function(x) sum(is.nan(x)) )
+
+library(randomForest)
+mod_cof <- randomForest::randomForest(ftr_subset, as.factor(abs_perfs[,1]) )
+mod_fabod <- randomForest::randomForest(ftr_subset, as.factor(abs_perfs[,2]) )
+
+models_abs <- TrainModels(1)
