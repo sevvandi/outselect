@@ -1,0 +1,34 @@
+[0m[0K]0;:/c/repos/outselect_private[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K in[0Ki[0K[?25lt[0K[10G[?25h[11G[?25l
+[0K[?25hInitialized empty Git repository in C:/repos/outselect_private/.git/[0K[?25l
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[?25l$ git ad[0K[?25h[?25l$ git a[0K[?25h[?25l$ git[0K[7G[?25h[6G[7G[?25l$ git c[0K[?25ho[0Km[0Km[0K[?25li[0K[11G[?25h[12G[?25l$ git commit[0K[?25h[14G[?25l$ git commit -[0K[?25hm[0K[17G[?25l$ git commit -m "[0K[?25h[?25lf[0K[18G[?25h[19G[?25l$ git commit -m "fi[0K[?25hr[0Ks[0Kt[0K[24G[?25l$ git commit -m "first c[0K[?25ho[0Km[0Km[0Ki[0Kt[0K"[0K[?25l
+[0K[?25hOn branch master[0K[?25l
+[0K
+Initial commit[0K
+[0K
+Untracked files:[0K
+        [0;31m.Rbuildignore[0m[0K
+        [0;31m.Rhistory[0m[0K
+        [0;31m.Rproj.user/[0m[0K
+        [0;31mDESCRIPTION[0m[0K
+        [0;31mNAMESPACE[0m[0K
+        [0;31mR/[0m[0K
+        [0;31mman/[0m[0K
+        [0;31moutselect.Rproj[0m[0K
+[0K
+nothing added to commit but untracked files present[0K
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ git remote add origin https://github.com/sevvandi/outselect_private.git[0K[?25h[?25l
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ git push -u origin master[0K[?25h[?25l
+[0K[?25herror: src refspec master does not match any.[0K[?25l
+[0;31merror: failed to push some refs to 'https://github.com/sevvandi/outselect_private.git'[0m[0K
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add .[0K[?25h[?25l
+[0K[?25h
