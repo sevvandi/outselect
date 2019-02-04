@@ -152,7 +152,12 @@ CrossValidateModels <- function(d, p, s=1, n=5){
     }else if (s==2){
       # all features
       col_nums <- 1:dim(features_mm)[2]
-      ftr_subset <- features_mm
+      ftr_subset1 <- features_mm
+      sds <- apply(ftr_subset1, 2, sd)
+      rm_cols <- c(1, which(sds==0)) # to remove the filename
+      col_nums <- setdiff(col_nums,rm_cols)
+      ftr_subset <- features_mm[ ,col_nums]
+      cat("Using all", length(col_nums), "features. This will take REALLY LONG!  \n")
     }
 
     if(p==1){
@@ -176,9 +181,15 @@ CrossValidateModels <- function(d, p, s=1, n=5){
       col_list <- c('SNR', 'OPO_Res_KNOut_95P_1', 'OPO_Out_DenOut_1_3', 'OPO_Den_Out_SD_3', 'OPO_Res_Out_95P_3', 'OPO_LocDenOut_Out_95P_1', 'OPO_GDeg_Out_Mean_1', 'OPO_GComp_PO_Q95_3')
       col_nums <- which(colnames(features_all) %in% col_list )
       ftr_subset <- features_all[ ,col_nums]
+
     }else if (s==2){
       col_nums <- 1:dim(features_all)[2]
-      ftr_subset <- features_all
+      ftr_subset1 <- features_all
+      sds <- apply(ftr_subset1, 2, sd)
+      rm_cols <- c(1, which(sds==0)) # to remove the filename
+      col_nums <- setdiff(col_nums,rm_cols)
+      ftr_subset <- features_all[ ,-rm_cols]
+      cat("Using all", length(col_nums), "features. This will take REALLY LONG!  \n")
     }
 
     if(p==1){
@@ -220,9 +231,9 @@ CrossValidateModels <- function(d, p, s=1, n=5){
   new_order <- sample(uniq_f_s,length(uniq_f_s))
   folds <- cut(seq(1,length(uniq_f_s)),breaks=n,labels=FALSE)
 
-  cat("Starting", n, "fold cross validation. This will take some time... \n")
+  cat("Starting", n, "fold cross validation. \n")
 
-  ftr_subset <- apply(ftr_subset,2,unitize_2)
+  ftr_subset <- apply(ftr_subset,2,unitize_1)
   # Perform n fold cross validation
   for(i in 1:n){
     testSources <- new_order[which(folds==i,arr.ind=TRUE)]

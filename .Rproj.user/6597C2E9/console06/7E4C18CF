@@ -203,4 +203,82 @@ Total 36 (delta 5), reused 0 (delta 0)[0K
 [0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
 ]0;:/c/repos/outselect_private[?25l
 [0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add .[0K[?25h
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add .[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/6597C2E9/pcs/files-pane.pper.[0K[?25l
+The file will have its original line endings in your working directory[0K
+[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/6597C2E9/pcs/source-pane.pper.[0K[?25l
+The file will have its original line endings in your working directory[0K
+[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/6597C2E9/sources/prop/2132E3D2.[0K[?25l
+The file will have its original line endings in your working directory[0K
+warning: LF will be replaced by CRLF in .Rproj.user/6597C2E9/sources/prop/36E21DE5.[0K
+The file will have its original line endings in your working directory[0K
+[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/6597C2E9/sources/prop/664CD9A2.[0K[?25l
+The file will have its original line endings in your working directory[0K
+[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/6597C2E9/sources/prop/85C70F11.[0K[?25l
+The file will have its original line endings in your working directory[0K
+[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/shared/notebooks/paths.[0K[?25l
+The file will have its original line endings in your working directory[0K
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git c[0K[?25ho[0Km[0Km[0Ki[0Kt[0K[14G[?25l$ git commit -[0K[?25hm[0K[17G[?25l$ git commit -m "[0K[?25hC[0K[?25l$ git commit -m "[0K[?25ha[0Kd[0Kd[0K[22G[?25l$ git commit -m "add m[0K[?25he[0Kt[0Kh[0Ko[0Kd[0K[29G[?25l$ git commit -m "add method C[0K[?25hV[0K[32G[?25l$ git commit -m "add method CV m[0K[?25ho[0Kd[0K[?25l$ git commit -m "add method CV mo[0K[?25h[?25l$ git commit -m "add method CV m[0K[?25h[?25l$ git commit -m "add method CV[0K[32G[?25h[31G[?25l$ git commit -m "add method CVm[0K[?25ho[0Kd[0Ke[0Kl[0Ks[0K"[0K[?25l
+[0K[?25h[master bf09cb2] add method CVmodels[0K[?25l
+ Committer: Sevvandi Kandanaarachchi <Sevvandi.Kandanaarachchi@monash.edu>[0K
+Your name and email address were configured automatically based[0K
+on your username and hostname. Please check that they are accurate.[0K
+You can suppress this message by setting them explicitly. Run the[0K
+following command and follow the instructions in your editor to edit[0K
+your configuration file:[0K
+[0K
+    git config --global --edit[0K
+[0K
+After doing this, you may fix the identity used for this commit with:[0K
+[0K
+    git commit --amend --reset-author[0K
+[0K
+ 38 files changed, 1042 insertions(+), 1572 deletions(-)[0K
+ rewrite .Rproj.user/6597C2E9/console06/INDEX001 (100%)[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/119D2C39[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/119D2C39-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/216D6BD0[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/216D6BD0-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/34AF9865[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/34AF9865-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/6860B7AC[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/6860B7AC-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/87DD9803-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/8DB7B632[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/8DB7B632-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/E0F14264[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/E0F14264-contents[0K
+ delete mode 100644 .Rproj.user/6597C2E9/sources/s-D2EEB091/lock_file[0K
+ create mode 100644 .gitignore[0K
+ rewrite R/Predict_Performance.R (68%)[0K
+ delete mode 100644 data/abs_perfs.rda[0K
+ create mode 100644 data/abs_perfs_all.rda[0K
+ create mode 100644 data/abs_perfs_mm.rda[0K
+ rename data/{features.rda => features_all.rda} (70%)[0K
+ create mode 100644 data/features_mm.rda[0K
+ delete mode 100644 data/perf_vals.rda[0K
+ create mode 100644 data/perf_vals_all.rda[0K
+ create mode 100644 data/perf_vals_mm.rda[0K
+ delete mode 100644 data/rel_perfs_0.05.rda[0K
+ create mode 100644 data/rel_perfs_0.05_all.rda[0K
+ create mode 100644 data/rel_perfs_0.05_mm.rda[0K
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25ho[0Kt[0K[?25l$ go[0K[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git p[0K[?25hu[0Ks[0Kh[0K[12G[?25l$ git push -[0K[?25hu[0K[15G[?25l$ git push -u o[0K[?25h[?25l$ git push -u[0K[15G[?25h[14G[?25l$ git push -[0K[?25h[?25l$ git push[0K[12G[?25h[?25l$ git push o[0K[?25hr[0Ki[0Kg[0Ki[0Kn[0K[19G[?25l$ git push origin m[0K[19G[?25h[20G[?25l$ git push origin ma[0K[?25hs[0Kt[0Ke[0Kr[0K[?25l
+[0K[?25hEnumerating objects: 56, done.[0K[?25l
+Counting objects: 100% (56/56), done.[0K
+Delta compression using up to 8 threads[0K
+Compressing objects:  48% (14/29)[0K[1G[?25h[?25lCompressing objects:  68% (20/29)[0K[1G[?25h[?25lCompressing objects:  72% (21/29)[0K[1G[?25hCompressing objects: 100% (29/29), done.[0K[?25l
+Writing objects:  42% (14/33)[0K[1G[?25h[?25lWriting objects:  81% (27/33)[0K[1G[?25h[?25lWriting objects:  81% (27/33), 984.00 KiB | 574.00 KiB/s[0K[1G[?25h[?25lWriting objects:  81% (27/33), 6.32 MiB | 2.86 MiB/s   s[0K[1G[?25h[?25lWriting objects:  81% (27/33), 19.13 MiB | 5.59 MiB/s[0K[1G[?25h[?25lWriting objects:  84% (28/33), 19.13 MiB | 5.59 MiB/s[0K[1G[?25h[?25lWriting objects:  84% (28/33), 32.84 MiB | 7.29 MiB/s[0K[1G[?25h[?25lWriting objects:  87% (29/33), 32.84 MiB | 7.29 MiB/s[0K[1G[?25h[?25lWriting objects:  90% (30/33), 32.84 MiB | 7.29 MiB/s[0K[1G[?25hWriting objects: 100% (33/33), 36.29 MiB | 7.85 MiB/s, done.[0K[?25l
+Total 33 (delta 7), reused 0 (delta 0)[0K
+[0K[?25hremote: Resolving deltas: 100% (7/7), completed with 7 local objects.[0K[?25l
+[0K[?25hTo https://github.com/sevvandi/outselect_private.git[0K[?25l
+   73eb5c3..bf09cb2  master -> master[0K
+[0K[?25h[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+]0;:/c/repos/outselect_private[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+$[0K[3G[?25h[0m[0K]0;:/c/repos/outselect_private[?25l
+[0;32mskandan@MU00128147 [0;35m [0;33m/c/repos/outselect_private[0;36m (master)[0m[0K
+[?25l$ g[0K[?25hit[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add .[0K[?25h

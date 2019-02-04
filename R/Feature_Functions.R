@@ -255,6 +255,7 @@ unitize_2 <- function(z) {
   # Mean and SD normalization
   mean.z <- mean(z)
   sd.z <- sd(z)
+  #print(sd.z)
   if (sd.z==0)
     return(z)
   (z - mean.z )/sd.z

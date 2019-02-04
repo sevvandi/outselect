@@ -10,3 +10,15 @@ EpsilonGood <- function(x, eps){
   }
   return(output)
 }
+
+
+RemoveInfiniteValues <- function(X, cols){
+  # X has the features
+  # Cols are columns with infinite values
+  iqr.vals <- apply(X[,cols],2, function(x)IQR(x, na.rm=TRUE))
+  for(ii in 1:length(cols)){
+    recs<- which(is.infinite(X[,cols[ii]]))
+    X[recs,cols[ii]] <- 5*iqr.vals[ii]*sign(X[recs,cols[ii]])
+  }
+  return(X)
+}
