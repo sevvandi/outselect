@@ -34,7 +34,7 @@ TrainModels <- function(d, p, s=1){
     # ---- ONLY MIN_MAX NORMALIZATION METHOD
     data(features_mm)
     if(s==1){
-      col_list <- c('SNR', 'OPO_Res_KNOut_95P_1', 'OPO_Out_DenOut_1_1', 'OPO_Den_Out_SD_1', 'OPO_Res_Out_95P_1', 'OPO_LocDenOut_Out_95P_1', 'OPO_GDeg_Out_Mean_1', 'OPO_GComp_PO_Q95_1')
+      col_list <- c('OPO_Res_ResOut_Median_1', 'OPO_Den_Out_95P_1', 'Mean_Entropy_Attr', 'OPO_Res_Out_Mean_1', 'OPO_GDeg_PO_Mean_1',    'IQR_TO_SD_95', 'OPO_GDeg_Out_Mean_1')
       col_nums <- which(colnames(features_mm) %in% col_list )
       ftr_subset <- features_mm[ ,col_nums]
     }else if (s==2){
@@ -146,7 +146,7 @@ CrossValidateModels <- function(d, p, s=1, n=5){
     filenames <- features_mm$filename
 
     if(s==1){
-      col_list <- c('SNR', 'OPO_Res_KNOut_95P_1', 'OPO_Out_DenOut_1_1', 'OPO_Den_Out_SD_1', 'OPO_Res_Out_95P_1', 'OPO_LocDenOut_Out_95P_1', 'OPO_GDeg_Out_Mean_1', 'OPO_GComp_PO_Q95_1')
+      col_list <- c('OPO_Res_ResOut_Median_1', 'OPO_Den_Out_95P_1', 'Mean_Entropy_Attr', 'OPO_Res_Out_Mean_1', 'OPO_GDeg_PO_Mean_1',    'IQR_TO_SD_95', 'OPO_GDeg_Out_Mean_1')
       col_nums <- which(colnames(features_mm) %in% col_list )
       ftr_subset <- features_mm[ ,col_nums]
     }else if (s==2){
