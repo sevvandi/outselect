@@ -1,11 +1,37 @@
-PredictPerformance1 <- function(ftrs, models){
+PredictPerformance <- function(ftrs, models){
   ftrs <- as.data.frame(ftrs)
   if( dim(ftrs)[2] > length(models$cols) ){
      x <- ftrs[,models$cols]
   }
-  predict(models$cof,x)
+  preds <- list()
+  pred$cof <- predict(models$cof,newdata=as.matrix(x))
+  pred$fabod <- predict(models$fabod,newdata=x)
+  pred$inflo <- predict(models$inflo,newdata=x)
+  pred$kdeos <- predict(models$kdeos,newdata=x)
+  pred$knn <- predict(models$knn,newdata=x)
+  pred$knnw <- predict(models$knnw,newdata=x)
+  pred$ldf <- predict(models$ldf,newdata=x)
+  pred$ldof <- predict(models$ldof,newdata=x)
+  pred$lof <- predict(models$lof,newdata=x)
+  pred$loof <- predict(models$loof,newdata=x)
+  pred$odin <- predict(models$odin,newdata=x)
+  pred$simlof <- predict(models$simlof,newdata=x)
+
+  return(pred)
 }
 
+#' Train models to predict outlier methods from meta-features of datasets.
+#' 
+#' @param d If \code{d=1} then we take the Min_Max performance values, if \code{d=2} then performance values from all normalization methods are considered. Input values for  \code{d} are only \code{1,2}.
+#' @param p If \code{p=1} then we take binary values based on absolute performance, i.e. if performance \code{ > 0.8}, if \code{p=2} the relative binary performance values are used. Input values for  \code{p} are only \code{1,2}.
+#' @param s If \code{s=1} then we train the models on a preferred subset of features. If \code{s=2} the models are trained on all features, which takes considerably longer.  Default value \code{s=1}. Input values for  \code{s} are only \code{1,2}.
+#' 
+#' @return  The trained randomforest models. 
+#'  
+#' @examples
+#' fit <- TrainModels(1,1,1)
+#' 
+#' 
 TrainModels <- function(d, p, s=1){
   # d is for meta-data set
   # d = 1 is the min_max performance data set
@@ -17,17 +43,17 @@ TrainModels <- function(d, p, s=1){
   # s is for subset of features or all features
   # s = 1 is for a subset of features
   # s = 2 is for all features
-
-  if((d!=1)|(d!=2)){
-    return("Invalid d. d should equal 1 or 2.")
+  
+  if((d!=1)&(d!=2)){
+    stop("Invalid d. d should equal 1 or 2.")
   }
 
-  if((p!=1)|(p!=2)){
-    return("Invalid p. p should equal 1 or 2.")
+  if((p!=1)&(p!=2)){
+    stop("Invalid p. p should equal 1 or 2.")
   }
 
-  if((s!=1)|(s!=2)){
-    return("Invalid s. s should equal 1 or 2.")
+  if((s!=1)&(s!=2)){
+    stop("Invalid s. s should equal 1 or 2.")
   }
 
   if(d==1){
@@ -78,38 +104,55 @@ TrainModels <- function(d, p, s=1){
       data(rel_perfs_0.05_all)
       perfs <- rel_perfs_0.05_all
     }
-
-    # Train models
-    mod_cof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,1]) )
-    mod_fabod <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,2]) )
-    mod_inflo <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,3]) )
-    mod_kdeos <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,4]) )
-    mod_knn <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,5]) )
-    mod_knnw <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,6]) )
-    mod_ldf <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,7]) )
-    mod_ldof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,8]) )
-    mod_lof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,9]) )
-    mod_loop <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,10]) )
-    mod_odin <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,11]) )
-    mod_simlof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,12]) )
-
-    models <- list()
-    models$cof <- mod_cof
-    models$fabod <- mod_fabod
-    models$inflo <- mod_inflo
-    models$kdeos <- mod_kdeos
-    models$knn <- mod_knn
-    models$knnw <- mod_knnw
-    models$ldf <- mod_ldf
-    models$ldof <- mod_ldof
-    models$lof <- mod_lof
-    models$loop <- mod_loop
-    models$odin <- mod_odin
-    models$simlof <- mod_simlof
-    models$cols <- col_nums
   }
+  # Train models
+  mod_cof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,1]) )
+  mod_fabod <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,2]) )
+  mod_inflo <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,3]) )
+  mod_kdeos <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,4]) )
+  mod_knn <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,5]) )
+  mod_knnw <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,6]) )
+  mod_ldf <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,7]) )
+  mod_ldof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,8]) )
+  mod_lof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,9]) )
+  mod_loop <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,10]) )
+  mod_odin <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,11]) )
+  mod_simlof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,12]) )
+  
+  models <- list()
+  models$cof <- mod_cof
+  models$fabod <- mod_fabod
+  models$inflo <- mod_inflo
+  models$kdeos <- mod_kdeos
+  models$knn <- mod_knn
+  models$knnw <- mod_knnw
+  models$ldf <- mod_ldf
+  models$ldof <- mod_ldof
+  models$lof <- mod_lof
+  models$loop <- mod_loop
+  models$odin <- mod_odin
+  models$simlof <- mod_simlof
+  models$cols <- col_nums
+  models$d <- d
+  models$p <- p
+  models$s <- s
   return(models)
 }
+
+
+#' Cross validates models to reproduce results in  journal and conference papers.
+#' 
+#' @inheritParams TrainModels  
+#' @param n The number of folds in cross validation.
+#'
+#' @return A list containing the following results from the cross validated models:
+#' \describe{   
+#'  \item{def_acc}{The default accuracy we get if we predict the method is not good for all instances. This is the percentage of the majority class.}
+#'  \item{results}{The \code{n}-fold cross valdation results. }
+#'  \item{mean_acc}{The mean \code{n}-fold cross valdation results.}
+#' }
+
+
 
 
 CrossValidateModels <- function(d, p, s=1, n=5){

@@ -90,7 +90,7 @@ ComputeFeaturesNoScaling <- function(dat.o){
   # F9 - Mean Entropy Of Attributes
   feature.vector[8] <- MeanEntropyOfAttributes(dat)
   # F10 - Entropy Of Total dataset without class and id
-  feature.vector[9] <- infotheo::entropy(discretize(dat))
+  feature.vector[9] <- infotheo::entropy(infotheo::discretize(dat))
   # F11 - Mean Mutual Information
   feature.vector[10] <- MeanMutualInformation(dat.2)
   # F12 - Noise to signal ratio
@@ -154,7 +154,7 @@ PCAVarComp1 <- function(dat){
 }
 
 MeanEntropyOfAttributes <- function(dat){
-  mean.entropy <- mean(apply(discretize(dat),2,infotheo::entropy))
+  mean.entropy <- mean(apply(infotheo::discretize(dat),2,infotheo::entropy))
   return(mean.entropy)
 }
 
@@ -163,7 +163,7 @@ MeanEntropyOfAttributes <- function(dat){
 
 MeanMutualInformation <- function(dat.2){
   dat <- dat.2[,colnames(dat.2)[colnames(dat.2)!="outlier"]]
-  output <- sapply(discretize(dat), mutinformation, Y = as.matrix(dat.2$outlier))
+  output <- sapply(infotheo::discretize(dat), infotheo::mutinformation, Y = as.matrix(dat.2$outlier))
   return(mean(output))
 }
 
@@ -282,10 +282,9 @@ unitize_4 <- function(z) {
 
 
 SpreadMeasure3 <- function(dat){
-  require(dbscan)
   dat <- data.frame(dat)
   nn <- max(floor(dim(dat)[1]/200),10)
-  knn.out <- knn.dist(dat,nn)
+  knn.out <- FNN::knn.dist(dat,nn)
   epsilon <- quantile(knn.out[,2],probs =0.9)
   dbscan.ex <- dbscan::dbscan(dat, eps=epsilon)
   output <- length(unique(dbscan.ex$cluster))-1
@@ -301,7 +300,6 @@ SpreadMeasure3 <- function(dat){
 ##########################################################################################
 
 ComputeNewSetWithScaling4 <- function(dat.o,norm_tech){
-  require("FNN")
   dat.o <- data.frame(dat.o)
 
   ## Pre-processing
@@ -365,11 +363,9 @@ FindNonBinaryVariables <- function(dat){
 
 
 DBSCANProperties <- function(dat, oo){
-  require("FNN")
-  require("dbscan")
   dat <- as.data.frame(dat)
   pref.k <- min(ceiling(dim(dat)[1]/20),200)
-  z.n <- knn.dist(dat,pref.k)
+  z.n <- FNN::knn.dist(dat,pref.k)
   z1 <- z.n[,pref.k]
   pot.outliers <- order(z1,decreasing=TRUE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
 
@@ -377,8 +373,8 @@ DBSCANProperties <- function(dat, oo){
 
 
   k.value <- min(ceiling(dim(dat)[1]/20),50)
-  knn.dist <- knn.dist(dat,k.value)
-  eps.val <- mean(knn.dist[,k.value])
+  knn_dist <- FNN::knn.dist(dat,k.value)
+  eps.val <- mean(knn_dist[,k.value])
   if(dim(dat)[2]>10){
     ## Compute PCA and do the first 10 PCs
     pca.obj <- prcomp(dat)
@@ -403,10 +399,9 @@ DBSCANProperties <- function(dat, oo){
 }
 
 DensityOfProxiesAndOutliers <- function(dat, oo){
-  require("FNN")
   dat <- as.data.frame(dat)
   pref.k <- min(ceiling(dim(dat)[1]/20),200)
-  z.n <- knn.dist(dat,pref.k)
+  z.n <- FNN::knn.dist(dat,pref.k)
   z1 <- z.n[,pref.k]
   pot.outliers <- order(z1,decreasing=TRUE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
   outliers <- which(oo=='yes')
@@ -441,7 +436,7 @@ DensityOfProxiesAndOutliers <- function(dat, oo){
       sel.cols <- col.pairs[ii,]
       tryCatch(
         { ## Try part
-          temp <- kde(pca.obj$x[,sel.cols],compute.cont=TRUE, eval.points = dat[,sel.cols])$estimate
+          temp <- ks::kde(pca.obj$x[,sel.cols],compute.cont=TRUE, eval.points = dat[,sel.cols])$estimate
           abmatrix[ii,1:8] <- ComputeDensityFeatures(temp,pot.outliers)
           pot.outliers.density <- order(temp,decreasing=FALSE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
           abmatrix[ii,9:16] <- ComputeDensityFeatures(temp,pot.outliers.density)
@@ -474,7 +469,7 @@ DensityOfProxiesAndOutliers <- function(dat, oo){
     }
 
   }else{  ### only one column in dat
-    temp <- kde(dat[,cols],eval.points = dat[,cols])$estimate
+    temp <- ks::kde(dat[,cols],eval.points = dat[,cols])$estimate
     out1 <- ComputeDensityFeatures(temp,pot.outliers)
     pot.outliers.density <- order(temp,decreasing=FALSE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
     out2 <- ComputeDensityFeatures(temp,pot.outliers.density)
@@ -596,11 +591,10 @@ ComparePOWithOut<- function(dx, outliers, sw){
 
 
 ResidualsOfProxisAndOutliers <- function(dat, oo){
-  require("FNN")
   dat <- as.data.frame(dat)
 
   pref.k <- min(ceiling(dim(dat)[1]/20),200)
-  z.n <- knn.dist(dat,pref.k)
+  z.n <- FNN::knn.dist(dat,pref.k)
   z1 <- z.n[,pref.k]
   pot.outliers <- order(z1,decreasing=TRUE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
   outliers <- which(oo=='yes')
@@ -734,7 +728,6 @@ ComputeResidualFeatures <- function(res, pot.outliers){
 
 
 ComputeNewSetWithScaling5 <- function(dat.o,norm_tech){
-  require("FNN")
   dat.o <- data.frame(dat.o)
 
   ## Pre-processing
@@ -786,11 +779,10 @@ ComputeNewSetWithScaling5 <- function(dat.o,norm_tech){
 
 
 LocDensityOfProxiesAndOutliers <- function(dat, oo){
-  require("FNN")
   dat <- as.data.frame(dat)
   pref.k <- min(ceiling(dim(dat)[1]/20),200)
-  knn.nbrs <- knn.index(dat,pref.k)
-  z.n <- knn.dist(dat,pref.k)
+  knn.nbrs <- FNN::knn.index(dat,pref.k)
+  z.n <- FNN::knn.dist(dat,pref.k)
   z1 <- z.n[,pref.k]
   pot.outliers <- order(z1,decreasing=TRUE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
   outliers <- which(oo=='yes')
@@ -821,7 +813,7 @@ LocDensityOfProxiesAndOutliers <- function(dat, oo){
       sel.cols <- col.pairs[ii,]
       tryCatch(
         { ## Try part
-          temp0 <- kde(pca.obj$x[,sel.cols],compute.cont=TRUE, eval.points = dat[,sel.cols])$estimate
+          temp0 <- ks::kde(pca.obj$x[,sel.cols],compute.cont=TRUE, eval.points = dat[,sel.cols])$estimate
           temp <- GetLocalDensity(temp0,knn.nbrs)
           abmatrix[ii,1:8] <- ComputeDensityFeatures(temp,pot.outliers)
           pot.outliers.density <- order(temp,decreasing=FALSE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
@@ -855,7 +847,7 @@ LocDensityOfProxiesAndOutliers <- function(dat, oo){
     }
 
   }else{  ### only one column in dat
-    temp0 <- kde(dat[,cols],eval.points = dat[,cols])$estimate
+    temp0 <- ks::kde(dat[,cols],eval.points = dat[,cols])$estimate
     temp <- GetLocalDensity(temp0,knn.nbrs)
     out1 <- ComputeDensityFeatures(temp,pot.outliers)
     pot.outliers.density <- order(temp,decreasing=FALSE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
@@ -884,20 +876,18 @@ GetLocalDensity <- function(dx,knn.nbrs){
 }
 
 GraphFeaturesOfProxisAndOutliers <- function(dat,oo){
-  require("igraph")
-  require("FNN")
   dat <- as.data.frame(dat)
   outliers <- which(oo=='yes')
 
   out <- data.frame(GDegOut_Out_1=numeric(), GDegOut_Out_2=numeric(), GDeg_Out_Mean=numeric(), GDeg_Out_Median=numeric(), GDeg_Out_SD=numeric(), GDeg_Out_IQR=numeric(), GDeg_Out_Max=numeric(), GDeg_Out_Min=numeric(), GDeg_Out_Q95=numeric(), GDeg_Out_Q05=numeric(),  GDeg_PO_Mean=numeric(), GDeg_PO_Median=numeric(), GDeg_PO_SD=numeric(), GDeg_PO_IQR=numeric(), GDeg_PO_Max=numeric(), GDeg_PO_Min=numeric(), GDeg_PO_Q95=numeric(), GDeg_PO_Q05=numeric(),  GComp_Out_Mean=numeric(), GComp_Out_Median=numeric(), GComp_Out_SD=numeric(), GComp_Out_IQR=numeric(), GComp_Out_Max=numeric(), GComp_Out_Min=numeric(), GComp_Out_Q95=numeric(), GComp_Out_Q05=numeric(), GComp_PO_Mean=numeric(), GComp_PO_Median=numeric(), GComp_PO_SD=numeric(), GComp_PO_IQR=numeric(), GComp_PO_Max=numeric(), GComp_PO_Min=numeric(), GComp_PO_Q95=numeric(), GComp_PO_Q05=numeric(), GDist_O_Zero =numeric(), GDist_O_One = numeric(), GDist_O_Two = numeric(), GDist_O_Three = numeric(), GDist_O_Four = numeric(), GDist_O_Five = numeric(), GDist_O_AboveFive = numeric())
 
   pref.k <- min(ceiling(dim(dat)[1]/20),200)
-  relations <- knn.index(dat,pref.k)
-  dist <- knn.dist(dat,pref.k)
+  relations <- FNN::knn.index(dat,pref.k)
+  dist <- FNN::knn.dist(dat,pref.k)
   vert <- 1:dim(dat)[1]
-  g <- graph_from_data_frame(relations, directed=TRUE, vertices=vert)
+  g <- igraph::graph_from_data_frame(relations, directed=TRUE, vertices=vert)
 
-  deg.vals <- degree(g)
+  deg.vals <- igraph::degree(g)
   pot.outliers <- order(deg.vals,decreasing=TRUE)[1:min(ceiling(dim(dat)[1]*3/100),200)]
   quant1 <- length(intersect(pot.outliers,outliers))/length(outliers)
   quant2 <- length(intersect(pot.outliers,outliers))/length(pot.outliers)
@@ -907,7 +897,7 @@ GraphFeaturesOfProxisAndOutliers <- function(dat,oo){
 
 
 
-  comp <- components(g)
+  comp <- igraph::components(g)
   comp.mem.o <-unique(comp$membership[outliers])
   comp.mem.po <-unique(comp$membership[pot.outliers])
 
@@ -916,7 +906,7 @@ GraphFeaturesOfProxisAndOutliers <- function(dat,oo){
   out3 <- RatiosBetweenTwoGroups(comp.csize,comp.mem.o)
   out4 <- RatiosBetweenTwoGroups(comp.csize,comp.mem.po)
 
-  dist.from.out <- distances(g, v=V(g)[outliers], to=V(g)[-outliers], weights=NA)
+  dist.from.out <- igraph::distances(g, v=V(g)[outliers], to=V(g)[-outliers], weights=NA)
   dist.from.out <- data.frame(dist.from.out)
   stats.d.f.o <- apply(dist.from.out,1,function(x)sum(is.finite(x)))
   out5 <- GetStatsFromGraphDistances(stats.d.f.o)
@@ -1032,14 +1022,13 @@ ComputeWVectors <- function(dat){
 
 ComputeAngleFeatures <- function(dat,oo,vec.mm, vec.iqr, S){
   #S = TRUE for normal data S is a switch
-  require("FNN")
   if(S){
     recs <- which(oo!='yes')
   }else{
     recs <- which(oo=='yes')
   }
   kk <- min(ceiling(dim(dat)[1]/20), 100)
-  kn.ind <-   knn.index(dat,kk)[,kk]
+  kn.ind <-   FNN::knn.index(dat,kk)[,kk]
   x.vecs <- (dat[recs,] - dat[kn.ind[recs],])^2
   x.vecs.length <- apply(x.vecs,1,function(x) sum(x^2))
   x.vecs.n <- t(apply(x.vecs,1,normm))
