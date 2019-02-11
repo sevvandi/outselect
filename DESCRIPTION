@@ -14,5 +14,7 @@ Imports:
     infotheo,
     moments,
     ks,
-    igraph
+    igraph,
+    e1071,
+    ggplot2
 RoxygenNote: 6.1.1
