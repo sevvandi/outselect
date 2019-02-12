@@ -419,7 +419,7 @@ DrawInstSpace <- function(d=1){
     pf.all <- predict(mod.big, dd2, probability=TRUE)
     col <- which(colnames(attr(pf.all, "probabilities"))=="1")
     preds.all[,kk] <- attr(pf.all, "probabilities")[,col]
-    preds.all.1.0[,kk] <- ifelse(preds.all[,kk] >=0.4,1,0)
+    preds.all.1.0[,kk] <- ifelse(preds.all[,kk] >=0.5,1,0)
   }
   colnames(preds.all.1.0)<-  colnames(perfs)
 
