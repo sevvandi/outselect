@@ -14,6 +14,10 @@ ComputeMetaFeaturesAll <- function(dat.o){
 
   features <- cbind.data.frame(f0,f1,f2,f3,f4, f5)
   colnames(features) <- c(colnames(f0), colnames(f1), colnames(f2), colnames(f3),colnames(f4),colnames(f5) )
+  ll <- length(features)
+  features2 <- cbind.data.frame(features[1:2],features[1]/features[2], features[3:ll])
+  colnames(features2) <- c(colnames(features)[1:2], "Ratio_Obs_2_Attr", colnames(features)[3:ll] )
+  features <- features2
   return(features)
 }
 
@@ -34,6 +38,12 @@ ComputeMetaFeaturesMM <- function(dat.o){
 
   features <- cbind.data.frame(f0,f1,f3)
   colnames(features) <- c(colnames(f0), colnames(f1),  colnames(f3) )
+
+  ll <- length(features)
+  features2 <- cbind.data.frame(features[1:2],features[1]/features[2], features[3:ll])
+  colnames(features2) <- c(colnames(features)[1:2], "Ratio_Obs_2_Attr", colnames(features)[3:ll] )
+  features <- features2
+
   return(features)
 }
 
@@ -906,7 +916,7 @@ GraphFeaturesOfProxisAndOutliers <- function(dat,oo){
   out3 <- RatiosBetweenTwoGroups(comp.csize,comp.mem.o)
   out4 <- RatiosBetweenTwoGroups(comp.csize,comp.mem.po)
 
-  dist.from.out <- igraph::distances(g, v=V(g)[outliers], to=V(g)[-outliers], weights=NA)
+  dist.from.out <- igraph::distances(g, v=igraph::V(g)[outliers], to=igraph::V(g)[-outliers], weights=NA)
   dist.from.out <- data.frame(dist.from.out)
   stats.d.f.o <- apply(dist.from.out,1,function(x)sum(is.finite(x)))
   out5 <- GetStatsFromGraphDistances(stats.d.f.o)
@@ -923,11 +933,15 @@ RatiosBetweenTwoGroups <-  function(dx, grp){
   F1 <- ifelse(mean(dx[-grp],na.rm = TRUE)==0, 0, mean(dx[grp],na.rm = TRUE)/mean(dx[-grp],na.rm = TRUE))
   F2 <- ifelse(median(dx[-grp],na.rm = TRUE)==0, 0, median(dx[grp],na.rm = TRUE)/median(dx[-grp],na.rm = TRUE))
   F3 <- ifelse(sd(dx[-grp],na.rm = TRUE)==0, 0, sd(dx[grp],na.rm = TRUE)/sd(dx[-grp],na.rm = TRUE))
+  if(is.na(F3)){
+    F3 <- 0
+  }
   F4 <- ifelse(IQR(dx[-grp],na.rm = TRUE)==0, 0, IQR(dx[grp],na.rm = TRUE)/IQR(dx[-grp],na.rm = TRUE))
   F5 <- ifelse(max(dx[-grp],na.rm = TRUE)==0, 0, max(dx[grp],na.rm = TRUE)/max(dx[-grp],na.rm = TRUE))
   F6 <- ifelse(min(dx[-grp],na.rm = TRUE)==0, 0, min(dx[grp],na.rm = TRUE)/min(dx[-grp],na.rm = TRUE))
   F7 <- ifelse(quantile(dx[-grp],prob=0.95,na.rm = TRUE)==0, 0, quantile(dx[grp],prob=0.95,na.rm = TRUE)/quantile(dx[-grp],prob=0.95,na.rm = TRUE))
   F8 <- ifelse(quantile(dx[-grp],prob=0.05,na.rm = TRUE)==0, 0, quantile(dx[grp],prob=0.05,na.rm = TRUE)/quantile(dx[-grp],prob=0.05,na.rm = TRUE))
+
   out <- c(F1,F2,F3, F4, F5, F6, F7, F8)
   return(out)
 }

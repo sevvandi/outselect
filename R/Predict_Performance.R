@@ -1,23 +1,45 @@
+#' Predicts suitable outlier methods from meta-features of the dataset using trained random forest models.
+#' @param ftrs Meta-features of the dataset.
+#' @param models The trained random forest models. These are obtained from the function \code{TrainModels}.
+#'
+#' @return The prediction probabilities for each of the outlier method. For example, a probability of 0.78 for the first outlier method means the probability that the first method is good for this dataset is 0.78.
+#'
+#' @examples
+#' data(Arrhythmia_withoutdupl_05_v05)
+#' dat <- Arrhythmia_withoutdupl_05_v05
+#' feat <- ComputeMetaFeaturesMM(dat)
+#' fit <- TrainModels(1,1,1)
+#' out <- PredictPerformance(feat, fit)
+
+
 PredictPerformance <- function(ftrs, models){
   ftrs <- as.data.frame(ftrs)
-  if( dim(ftrs)[2] > length(models$cols) ){
-     x <- ftrs[,models$cols]
-  }
-  preds <- list()
-  pred$cof <- predict(models$cof,newdata=as.matrix(x))
-  pred$fabod <- predict(models$fabod,newdata=x)
-  pred$inflo <- predict(models$inflo,newdata=x)
-  pred$kdeos <- predict(models$kdeos,newdata=x)
-  pred$knn <- predict(models$knn,newdata=x)
-  pred$knnw <- predict(models$knnw,newdata=x)
-  pred$ldf <- predict(models$ldf,newdata=x)
-  pred$ldof <- predict(models$ldof,newdata=x)
-  pred$lof <- predict(models$lof,newdata=x)
-  pred$loof <- predict(models$loof,newdata=x)
-  pred$odin <- predict(models$odin,newdata=x)
-  pred$simlof <- predict(models$simlof,newdata=x)
 
-  return(pred)
+  d <- models$d
+  p <- models$p
+  s <- models$s
+  col_names <- models$col_names
+
+  x <- ftrs[,col_names]
+
+  if(d==1){
+    preds <- matrix(0,nrow=1, ncol=12)
+    colnames(preds) <- c("COF", "FAST_ABOD", "INFLO", "KDEOS", "KNN", "KNNW", "LDF", "LDOF", "LOF", "LOOP", "ODIN", "SIMLOF")
+
+    preds[1] <- predict(models$cof,newdata=x, type="prob")[2]
+    preds[2]<- predict(models$fabod,newdata=x, type="prob")[2]
+    preds[3] <- predict(models$inflo,newdata=x, type="prob")[2]
+    preds[4] <- predict(models$kdeos,newdata=x, type="prob")[2]
+    preds[5] <- predict(models$knn,newdata=x, type="prob")[2]
+    preds[6] <- predict(models$knnw,newdata=x, type="prob")[2]
+    preds[7] <- predict(models$ldf,newdata=x, type="prob")[2]
+    preds[8] <- predict(models$ldof,newdata=x, type="prob")[2]
+    preds[9]<- predict(models$lof,newdata=x, type="prob")[2]
+    preds[10] <- predict(models$loop,newdata=x, type="prob")[2]
+    preds[11] <- predict(models$odin,newdata=x, type="prob")[2]
+    preds[12] <- predict(models$simlof,newdata=x, type="prob")[2]
+  }
+  return(preds)
 }
 
 #' Train models to predict outlier methods from meta-features of datasets.
@@ -136,6 +158,7 @@ TrainModels <- function(d, p, s=1){
   models$d <- d
   models$p <- p
   models$s <- s
+  models$col_names <- col_list
   return(models)
 }
 

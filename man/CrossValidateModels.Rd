@@ -17,7 +17,7 @@ CrossValidateModels(d, p, s = 1, n = 5)
 }
 \value{
 A list containing the following results from the cross validated models:
-\describe{   
+\describe{
  \item{def_acc}{The default accuracy we get if we predict the method is not good for all instances. This is the percentage of the majority class.}
  \item{results}{The \code{n}-fold cross valdation results. }
  \item{mean_acc}{The mean \code{n}-fold cross valdation results.}

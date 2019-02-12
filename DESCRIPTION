@@ -1,11 +1,10 @@
 Package: outselect
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
+Title: Algorithm selection for unsupervised outlier detection
+Version: 0.0.0.9000
 Author: Sevvandi Kandanaarachchi
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Maintainer: The package maintainer <sevvandi.kandanaarachchi@monash.edu>
+Description: This package reproduces results in the conference paper "Instance space analysis for unsupervised outlier detection" and journal paper "On normalization and algorithm selection for unsupervised outlier detection".
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
