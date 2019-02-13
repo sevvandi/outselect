@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 # outselect
- [![Travis build status](https://travis-ci.org/sevvandi/outselect_private.svg?branch=master)](https://travis-ci.org/sevvandi/outselect_private)
+ [![Travis build status](https://travis-ci.org/sevvandi/outselect.svg?branch=master)](https://travis-ci.org/sevvandi/outselect)
 
 The goal of outselect (outlier detection method selection) is to select  suitable outlier detection methods for a given dataset using meta-features. The functionality is available to reproduce some instance space results in our papers [@normalizationoutliers] and [@outliersinstance].   
 
