@@ -553,7 +553,7 @@ DrawInstSpace <- function(d=1){
 #' dat <- Arrhythmia_withoutdupl_05_v05
 #' feat <- ComputeMetaFeaturesMM(dat)
 #' svmout <- DrawInstSpace(d=1)
-#' PlotNewInstance(svm_out, feat)
+#' PlotNewInstance(svmout, feat)
 #'
 #'@export
 PlotNewInstance <- function(svm_out, feat){
