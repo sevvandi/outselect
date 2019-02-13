@@ -3,6 +3,8 @@
 outselect
 =========
 
+[![Travis build status](https://travis-ci.org/sevvandi/outselect_private.svg?branch=master)](https://travis-ci.org/sevvandi/outselect_private)
+
 The goal of outselect (outlier detection method selection) is to select suitable outlier detection methods for a given dataset using meta-features. The functionality is available to reproduce some instance space results in our papers (Kandanaarachchi et al. 2018) and (Kandanaarachchi, Muñoz, and Smith-Miles 2019).
 
 This package is still under development and this repository contains a development version of the R package *outselect*.
