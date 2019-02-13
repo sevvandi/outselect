@@ -10,6 +10,8 @@
 #' feat <- ComputeMetaFeaturesMM(dat)
 #' fit <- TrainModels(1,1,1)
 #' out <- PredictPerformance(feat, fit)
+#'
+#' @export
 
 
 PredictPerformance <- function(ftrs, models){
@@ -38,6 +40,8 @@ PredictPerformance <- function(ftrs, models){
     preds[10] <- predict(models$loop,newdata=x, type="prob")[2]
     preds[11] <- predict(models$odin,newdata=x, type="prob")[2]
     preds[12] <- predict(models$simlof,newdata=x, type="prob")[2]
+  }else{
+    stop("This functionality will be added in the near future.")
   }
   return(preds)
 }
@@ -53,6 +57,7 @@ PredictPerformance <- function(ftrs, models){
 #' @examples
 #' fit <- TrainModels(1,1,1)
 #'
+#' @export
 #'
 TrainModels <- function(d, p, s=1){
   # d is for meta-data set
@@ -65,6 +70,8 @@ TrainModels <- function(d, p, s=1){
   # s is for subset of features or all features
   # s = 1 is for a subset of features
   # s = 2 is for all features
+
+  print("Training models on meta-features. This will take some time.")
 
   if((d!=1)&(d!=2)){
     stop("Invalid d. d should equal 1 or 2.")
@@ -105,6 +112,8 @@ TrainModels <- function(d, p, s=1){
 
   }else if(d==2){
     # ---- ALL NORMALIZATION METHODS - PERFORMANCE AND FEATURES
+    stop("This functionality will be added in the near future.")
+
     data(features_all)
 
     if(s==1){
@@ -174,9 +183,12 @@ TrainModels <- function(d, p, s=1){
 #'  \item{results}{The \code{n}-fold cross valdation results. }
 #'  \item{mean_acc}{The mean \code{n}-fold cross valdation results.}
 #' }
-
-
-
+#'
+#' @examples
+#' out <- CrossValidateModels(1,1,1,5)
+#' out$mean_acc
+#'
+#' @export
 
 CrossValidateModels <- function(d, p, s=1, n=5){
   # d is for meta-data set
@@ -240,6 +252,8 @@ CrossValidateModels <- function(d, p, s=1, n=5){
 
   }else if(d==2){
     # ---- ALL NORMALIZATION METHODS - PERFORMANCE AND FEATURES
+    stop("This functionality will be added in the near future.")
+
     data(features_all)
     filenames <- features_all$filename
 
@@ -328,6 +342,25 @@ CrossValidateModels <- function(d, p, s=1, n=5){
 }
 
 
+
+#' Cross validates SVM with instance space coordinates.
+#'
+#'@inheritParams CrossValidateModels
+#'
+#'@return A list with the following components:
+#'\describe{
+#'  \item{def_acc}{The default accuracy we get if we predict the method is not good for all instances. This is the percentage of the majority class.}
+#'  \item{results}{The \code{n}-fold cross valdation results. }
+#'  \item{mean_acc}{The mean \code{n}-fold cross valdation results.}
+#'  \item{d}{Which instance space is cross validated. If \code{d=1}, then it is MIN_MAX normalization instance space, if \code{d=2} then all normalization methods are used. }
+#'  \item{coordinates}{The instance space coordinates.}
+#' }
+#'
+#'@examples
+#'out <- CrossValidateSVM(1,5)
+#'
+#'@export
+#'
 CrossValidateSVM <- function(d=1,n=5){
   if((d!=1)&(d!=2)){
     stop("Invalid d. d should equal 1 or 2.")
@@ -349,6 +382,8 @@ CrossValidateSVM <- function(d=1,n=5){
     # d = 2
     # coordinates for all normalization methods
     # DO LATER!!
+    stop("This functionality will be added in the near future.")
+
   }
 
   # Cross validation on file source as many variants of the same file exist
@@ -402,10 +437,29 @@ CrossValidateSVM <- function(d=1,n=5){
   out$def_acc <- default_accuracy
   out$results <-result_table
   out$mean_acc <- apply(result_table, 2, mean)*100
+  out$d <- d
+  out$coordinates <- coordinates
   return(out)
 }
 
-
+#' Trains an SVM on instance space coordinates and draws the instance space.
+#'
+#' @inheritParams CrossValidateSVM
+#'
+#' @return A list with the following components:
+#'\describe{
+#'  \item{preds10}{The predictions as \code{1} or \code{0} for each instance and each algorithm.}
+#'  \item{predprobs}{The prediction probabilities for each each instance and each algorithm.}
+#'  \item{algorithms}{The algorithm best suited for each instance. For some instances, no algorithms work well.}
+#'  \item{d}{Which instance space is cross validated. If \code{d=1}, then it is MIN_MAX normalization instance space, if \code{d=2} then all normalization methods are used. }
+#'  \item{coordinates}{The instance space coordinates.}
+#' }
+#'
+#'@examples
+#'svmout <- DrawInstSpace(d=1)
+#'
+#'@export
+#'
 
 DrawInstSpace <- function(d=1){
   if((d!=1)&(d!=2)){
@@ -419,10 +473,12 @@ DrawInstSpace <- function(d=1){
     perfs <- dat_4_svm_mm[ , 4:15]
     cst <- 150
     gmv <- 0.75
+    print("Training 12 SVMS for outlier detection methods. This will take some time.")
 
   }else{
     # Instance space using all normalization methods
     # FOR LATER!
+    stop("This functionality will be added in the near future.")
   }
 
   # Train an SVM
@@ -473,13 +529,50 @@ DrawInstSpace <- function(d=1){
   algorithms[pred.m==11] <-  "ODIN" #
   algorithms[pred.m==12] <-  "SIMLOF" #
 
-  print(ggplot2::ggplot(data=xx, aes(x,y))+ geom_point(aes(color=algorithms)))
+  print( ggplot2::ggplot(data=xx, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) +  ggplot2::theme_bw() )
 
   out <- list()
   out$preds10 <- preds.all.1.0
   out$predprobs <- preds.all
   out$algorithms <- algorithms
   out$filenames <- filenames
-
+  out$d <- d
+  out$coordinates <- xx
   return(out)
+}
+
+#' Plots a new instance in the instance space.
+#'
+#' @param svm_out The output of the trained svm using function \code{DrawInstSpace}
+#' @param feat The features of the new instance/dataset. This can be computed using \code{ComputeMetaFeaturesAll} or \code{ComputeMetaFeaturesMM}.
+#'
+#' @return new_coords Coodinates of the new instance in the instance space
+#'
+#' @examples
+#' data(Arrhythmia_withoutdupl_05_v05)
+#' dat <- Arrhythmia_withoutdupl_05_v05
+#' feat <- ComputeMetaFeaturesMM(dat)
+#' svmout <- DrawInstSpace(d=1)
+#' PlotNewInstance(svm_out, feat)
+#'
+#'@export
+PlotNewInstance <- function(svm_out, feat){
+
+  d <- svm_out$d
+  coordinates <- svm_out$coordinates
+  algorithms <- svm_out$algorithms
+
+  if(d==1){
+    # MIN_MAX NORMALIZATION
+    proj_mat <- matrix( c(-0.0460, 0.1202, -0.0862, -0.0938, 0.1854, 0.1737, 0.3543, -0.2847, 0.0378, -0.2078,-0.2025, -0.0822, 0.1845, -0.1325), nrow=2 )
+    col_names <- c("OPO_Res_ResOut_Median_1", "OPO_Den_Out_95P_1", "Mean_Entropy_Attr", "OPO_Res_Out_Mean_1", "OPO_GDeg_PO_Mean_1", "IQR_TO_SD_95", "OPO_GDeg_Out_Mean_1")
+  }else{
+    # ALL NORMALIZATION METHODS
+    stop("This functionality will be available in the near future.")
+  }
+  new_coords <- t(proj_mat%*%t(feat[ ,col_names]))
+  colnames(new_coords) <- colnames(coordinates)
+
+  print(ggplot2::ggplot(data=coordinates, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) + ggplot2::geom_point(ggplot2::aes(x=new_coords[1],y=new_coords[2]), color="black", shape=17, size=4)  + ggplot2::theme_bw() )
+  return(new_coords)
 }

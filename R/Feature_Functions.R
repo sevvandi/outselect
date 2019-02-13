@@ -2,8 +2,22 @@
 #### All features
 #### BEGIN
 #####################################################################################
+#' Computes features from a dataset, but using 2 normalization methods: MIN_MAX and MEDIAN_IQR.
+#' @param dat.o This is the data with the last column named as \code{outlier} having values \code{yes} or \code{no}. All other columns are numeric. Non-numerical data need to be converted to numerical before computing features.
+#'
+#' @return The set of features.
+#'
+#' @examples
+#' data(Arrhythmia_withoutdupl_05_v05)
+#' dat <- Arrhythmia_withoutdupl_05_v05
+#' feat <- ComputeMetaFeaturesAll(dat)
+#'
+#' @importFrom stats IQR cor density lm median prcomp predict quantile sd var
+#' @importFrom utils combn data head
+#'
+#' @export
 ComputeMetaFeaturesAll <- function(dat.o){
-
+  print("Computing 346 features. This will take some time.")
   f0 <- ComputeFeaturesNoScaling(dat.o)
   f1 <- ComputeNewSetWithScaling4(dat.o,1)
   f2 <- ComputeNewSetWithScaling4(dat.o,3)
@@ -30,7 +44,21 @@ ComputeMetaFeaturesAll <- function(dat.o){
 #### ONLY MIN_MAX features
 #### BEGIN
 #####################################################################################
+#' Computes features from a dataset, but using only MIN_MAX normalization.
+#'
+#' @inheritParams ComputeMetaFeaturesAll
+#'
+#' @return The set of features.
+#'
+#' @examples
+#' data(Arrhythmia_withoutdupl_05_v05)
+#' dat <- Arrhythmia_withoutdupl_05_v05
+#' feat <- ComputeMetaFeaturesMM(dat)
+#'
+#' @export
 ComputeMetaFeaturesMM <- function(dat.o){
+
+  print("Computing 178 features. This will take some time.")
 
   f0 <- ComputeFeaturesNoScaling(dat.o)
   f1 <- ComputeNewSetWithScaling4(dat.o,1)

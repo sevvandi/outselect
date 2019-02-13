@@ -22,5 +22,4 @@ Train models to predict outlier methods from meta-features of datasets.
 \examples{
 fit <- TrainModels(1,1,1)
 
-
 }

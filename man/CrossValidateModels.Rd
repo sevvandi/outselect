@@ -26,3 +26,8 @@ A list containing the following results from the cross validated models:
 \description{
 Cross validates models to reproduce results in  journal and conference papers.
 }
+\examples{
+out <- CrossValidateModels(1,1,1,5)
+out$mean_acc
+
+}
