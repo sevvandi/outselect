@@ -16,7 +16,9 @@ Imports:
     igraph,
     e1071,
     ggplot2,
-    quantmod
+    quantmod,
+    dbscan,
+    FNN
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.4.0)
