@@ -18,10 +18,12 @@ The prediction probabilities for each of the outlier method. For example, a prob
 Predicts suitable outlier methods from meta-features of the dataset using trained random forest models.
 }
 \examples{
+\dontrun{
 data(Arrhythmia_withoutdupl_05_v05)
 dat <- Arrhythmia_withoutdupl_05_v05
 feat <- ComputeMetaFeaturesMM(dat)
 fit <- TrainModels(1,1,1)
 out <- PredictPerformance(feat, fit)
+}
 
 }

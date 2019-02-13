@@ -25,6 +25,6 @@ A list with the following components:
 Cross validates SVM with instance space coordinates.
 }
 \examples{
-out <- CrossValidateSVM(1,5)
+\dontrun{ out <- CrossValidateSVM(1,5) }
 
 }

@@ -51,8 +51,8 @@ library(outselect)
 data(Arrhythmia_withoutdupl_05_v05)
 dat <- Arrhythmia_withoutdupl_05_v05
 feat <- ComputeMetaFeaturesMM(dat)
-svmout <- DrawInstSpace(d=1)
-PlotNewInstance(svmout, feat)
+svmout <- InstSpace(d=1)
+PlotNewInstance(svmout, feat, vis=TRUE)
 ```
 
 

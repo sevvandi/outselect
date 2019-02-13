@@ -20,6 +20,8 @@ The trained randomforest models.
 Train models to predict outlier methods from meta-features of datasets.
 }
 \examples{
+\dontrun{
 fit <- TrainModels(1,1,1)
+}
 
 }

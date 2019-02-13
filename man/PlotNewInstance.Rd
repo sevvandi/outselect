@@ -4,12 +4,14 @@
 \alias{PlotNewInstance}
 \title{Plots a new instance in the instance space.}
 \usage{
-PlotNewInstance(svm_out, feat)
+PlotNewInstance(svm_out, feat, vis = TRUE)
 }
 \arguments{
-\item{svm_out}{The output of the trained svm using function \code{DrawInstSpace}}
+\item{svm_out}{The output of the trained svm using function \code{InstSpace}}
 
 \item{feat}{The features of the new instance/dataset. This can be computed using \code{ComputeMetaFeaturesAll} or \code{ComputeMetaFeaturesMM}.}
+
+\item{vis}{If \code{TRUE} then the instance space along with the new instance is plotted.}
 }
 \value{
 new_coords Coodinates of the new instance in the instance space
@@ -18,10 +20,12 @@ new_coords Coodinates of the new instance in the instance space
 Plots a new instance in the instance space.
 }
 \examples{
+\dontrun{
 data(Arrhythmia_withoutdupl_05_v05)
 dat <- Arrhythmia_withoutdupl_05_v05
 feat <- ComputeMetaFeaturesMM(dat)
-svmout <- DrawInstSpace(d=1)
-PlotNewInstance(svmout, feat)
+svmout <- InstSpace(d=1)
+PlotNewInstance(svmout, feat, vis=FALSE)
+}
 
 }

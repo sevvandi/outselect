@@ -5,11 +5,14 @@
 #' @return The prediction probabilities for each of the outlier method. For example, a probability of 0.78 for the first outlier method means the probability that the first method is good for this dataset is 0.78.
 #'
 #' @examples
+#' \dontrun{
 #' data(Arrhythmia_withoutdupl_05_v05)
 #' dat <- Arrhythmia_withoutdupl_05_v05
 #' feat <- ComputeMetaFeaturesMM(dat)
 #' fit <- TrainModels(1,1,1)
 #' out <- PredictPerformance(feat, fit)
+#' }
+
 #'
 #' @export
 
@@ -55,7 +58,9 @@ PredictPerformance <- function(ftrs, models){
 #' @return  The trained randomforest models.
 #'
 #' @examples
+#' \dontrun{
 #' fit <- TrainModels(1,1,1)
+#' }
 #'
 #' @export
 #'
@@ -185,8 +190,10 @@ TrainModels <- function(d, p, s=1){
 #' }
 #'
 #' @examples
+#' \dontrun{
 #' out <- CrossValidateModels(1,1,1,5)
 #' out$mean_acc
+#' }
 #'
 #' @export
 
@@ -357,7 +364,7 @@ CrossValidateModels <- function(d, p, s=1, n=5){
 #' }
 #'
 #'@examples
-#'out <- CrossValidateSVM(1,5)
+#'\dontrun{ out <- CrossValidateSVM(1,5) }
 #'
 #'@export
 #'
@@ -445,6 +452,7 @@ CrossValidateSVM <- function(d=1,n=5){
 #' Trains an SVM on instance space coordinates and draws the instance space.
 #'
 #' @inheritParams CrossValidateSVM
+#' @param vis If \code{TRUE} then the instance space is plotted.
 #'
 #' @return A list with the following components:
 #'\describe{
@@ -456,12 +464,12 @@ CrossValidateSVM <- function(d=1,n=5){
 #' }
 #'
 #'@examples
-#'svmout <- DrawInstSpace(d=1)
+#'\dontrun{ svmout <- InstSpace(d=1)}
 #'
 #'@export
 #'
 
-DrawInstSpace <- function(d=1){
+InstSpace <- function(d=1, vis=FALSE){
   if((d!=1)&(d!=2)){
     stop("Invalid d. d should equal 1 or 2.")
   }
@@ -529,7 +537,10 @@ DrawInstSpace <- function(d=1){
   algorithms[pred.m==11] <-  "ODIN" #
   algorithms[pred.m==12] <-  "SIMLOF" #
 
-  print( ggplot2::ggplot(data=xx, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) +  ggplot2::theme_bw() )
+  if(vis){
+    print( ggplot2::ggplot(data=xx, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) +  ggplot2::theme_bw() )
+  }
+
 
   out <- list()
   out$preds10 <- preds.all.1.0
@@ -543,20 +554,23 @@ DrawInstSpace <- function(d=1){
 
 #' Plots a new instance in the instance space.
 #'
-#' @param svm_out The output of the trained svm using function \code{DrawInstSpace}
+#' @param svm_out The output of the trained svm using function \code{InstSpace}
 #' @param feat The features of the new instance/dataset. This can be computed using \code{ComputeMetaFeaturesAll} or \code{ComputeMetaFeaturesMM}.
+#' @param vis If \code{TRUE} then the instance space along with the new instance is plotted.
 #'
 #' @return new_coords Coodinates of the new instance in the instance space
 #'
 #' @examples
+#' \dontrun{
 #' data(Arrhythmia_withoutdupl_05_v05)
 #' dat <- Arrhythmia_withoutdupl_05_v05
 #' feat <- ComputeMetaFeaturesMM(dat)
-#' svmout <- DrawInstSpace(d=1)
-#' PlotNewInstance(svmout, feat)
+#' svmout <- InstSpace(d=1)
+#' PlotNewInstance(svmout, feat, vis=FALSE)
+#' }
 #'
 #'@export
-PlotNewInstance <- function(svm_out, feat){
+PlotNewInstance <- function(svm_out, feat, vis=TRUE){
 
   d <- svm_out$d
   coordinates <- svm_out$coordinates
@@ -573,6 +587,9 @@ PlotNewInstance <- function(svm_out, feat){
   new_coords <- t(proj_mat%*%t(feat[ ,col_names]))
   colnames(new_coords) <- colnames(coordinates)
 
-  print(ggplot2::ggplot(data=coordinates, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) + ggplot2::geom_point(ggplot2::aes(x=new_coords[1],y=new_coords[2]), color="black", shape=17, size=4)  + ggplot2::theme_bw() )
+  if(vis){
+    print(ggplot2::ggplot(data=coordinates, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) + ggplot2::geom_point(ggplot2::aes(x=new_coords[1],y=new_coords[2]), color="black", shape=17, size=4)  + ggplot2::theme_bw() )
+  }
+
   return(new_coords)
 }

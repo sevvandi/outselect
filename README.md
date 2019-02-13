@@ -51,17 +51,12 @@ data(Arrhythmia_withoutdupl_05_v05)
 dat <- Arrhythmia_withoutdupl_05_v05
 feat <- ComputeMetaFeaturesMM(dat)
 #> [1] "Computing 178 features. This will take some time."
-svmout <- DrawInstSpace(d=1)
+svmout <- InstSpace(d=1)
 #> [1] "Training 12 SVMS for outlier detection methods. This will take some time."
+PlotNewInstance(svmout, feat, vis=TRUE)
 ```
 
 <img src="man/figures/README-example2-1.png" width="100%" />
-
-``` r
-PlotNewInstance(svmout, feat)
-```
-
-<img src="man/figures/README-example2-2.png" width="100%" />
 
     #>            x          y
     #> 1 0.07454883 -0.3991142
