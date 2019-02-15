@@ -14,8 +14,8 @@
 #' which(cls$clustering==5)
 #' which(cls$clustering==6)
 #'
+#'@importFrom graphics plot
 #'@export
-#'
 ClusterMethods <- function( kk, rocpr=1, vis=FALSE){
   # kk number of clusters
 
