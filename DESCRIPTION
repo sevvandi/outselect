@@ -5,7 +5,7 @@ Version: 0.0.0.9000
 Author: Sevvandi Kandanaarachchi
 Maintainer: Sevvandi Kandanaarachchi <sevvandi.kandanaarachchi@monash.edu>
 Description: This package reproduces results in the conference paper "Instance space analysis for unsupervised outlier detection" and journal paper "On normalization and algorithm selection for unsupervised outlier detection".
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: 
