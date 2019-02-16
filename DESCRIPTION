@@ -18,7 +18,8 @@ Imports:
     ggplot2,
     quantmod,
     dbscan,
-    FNN
+    FNN,
+    cluster
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.4.0)
