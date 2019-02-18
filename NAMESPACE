@@ -3,6 +3,7 @@
 export(ClusterMethods)
 export(ComputeMetaFeaturesAll)
 export(ComputeMetaFeaturesMM)
+export(CorrPrRoc)
 export(CrossValidateModels)
 export(CrossValidateSVM)
 export(InstSpace)
