@@ -53,18 +53,19 @@ PredictPerformance <- function(ftrs, models){
 #'
 #' @param d If \code{d=1} then we take the Min_Max performance values, if \code{d=2} then performance values from all normalization methods are considered. Input values for  \code{d} are only \code{1,2}.
 #' @param p If \code{p=1} then we take binary values based on absolute performance, i.e. if performance \code{ > 0.8}, if \code{p=2} the relative binary performance values are used. Input values for  \code{p} are only \code{1,2}.
+#' @param rocpr For all normalization methods, if \code{rocpr=1} then area under \code{ROC} curve is used, if \code{rocpr=2} then area under \code{PR} curve is used. For Min_Max method, i.e. if \code{d=1}, then only \code{ROC} values are used.
 #' @param s If \code{s=1} then we train the models on a preferred subset of features. If \code{s=2} the models are trained on all features, which takes considerably longer.  Default value \code{s=1}. Input values for  \code{s} are only \code{1,2}.
 #'
 #' @return  The trained randomforest models.
 #'
 #' @examples
 #' \dontrun{
-#' fit <- TrainModels(1,1,1)
+#' fit <- TrainModels(1,1,1,1)
 #' }
 #'
 #' @export
 #'
-TrainModels <- function(d, p, s=1){
+TrainModels <- function(d, p, rocpr=1, s=1){
   # d is for meta-data set
   # d = 1 is the min_max performance data set
   # d = 2 is for all normalization methods performance dataset
@@ -75,6 +76,10 @@ TrainModels <- function(d, p, s=1){
   # s is for subset of features or all features
   # s = 1 is for a subset of features
   # s = 2 is for all features
+
+  # rocpr is for roc or pr. This is only for all norm methods
+  # rocpr = 1 for roc values
+  # rocpr = 2 for pr values
 
   print("Training models on meta-features. This will take some time.")
 
@@ -90,9 +95,14 @@ TrainModels <- function(d, p, s=1){
     stop("Invalid s. s should equal 1 or 2.")
   }
 
+  if((rocpr!=1)&(rocpr!=2)){
+    stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+
+  e <- new.env()
   if(d==1){
     # ---- ONLY MIN_MAX NORMALIZATION METHOD
-    data(features_mm)
+    data(features_mm, envir = e)
     if(s==1){
       col_list <- c('OPO_Res_ResOut_Median_1', 'OPO_Den_Out_95P_1', 'Mean_Entropy_Attr', 'OPO_Res_Out_Mean_1', 'OPO_GDeg_PO_Mean_1',    'IQR_TO_SD_95', 'OPO_GDeg_Out_Mean_1')
       col_nums <- which(colnames(features_mm) %in% col_list )
@@ -105,42 +115,58 @@ TrainModels <- function(d, p, s=1){
 
     if(p==1){
       # absolute performance  1 or 0
-      data(abs_perfs_mm)
+      data(abs_perfs_mm, envir = e)
       perfs <- abs_perfs_mm
 
     }else if(p==2){
       # relative performance  1 or 0
-      data(rel_perfs_0.05_mm)
+      data(rel_perfs_0.05_mm, envir = e)
       perfs <- rel_perfs_0.05_mm
 
     }
 
   }else if(d==2){
     # ---- ALL NORMALIZATION METHODS - PERFORMANCE AND FEATURES
-    stop("This functionality will be added in the near future.")
+    if(rocpr==1){
+      # ROC values
+      data(features_all, envir = e)
+      data(perf_vals_roc_subset, envir = e)
+      perf_vals <- perf_vals_roc_subset
+      feat <- features_all
+      col_list <- c('OPO_Res_ResOut_Mean_3', 'OPO_GDeg_Out_Mean_3', 'OPO_GComp_PO_Mean_1', 'MEAN_PROD_IQR', 'OPO_Res_Out_Mean_3', 'OPO_Res_ResOut_Max_3', 'OPO_Out_LocDenOut_1_3')
+    }else{
+      # PR values
+      stop("This functionality will be added in the near future.")
+      data(features_all_pr, envir = e)
+      data(perf_vals_pr_subset, envir = e)
+      perf_vals <- perf_vals_pr_subset
+      feat <- features_all_pr
+      # UPDATE COL_LIST
+      col_list <- c(0)
+    }
 
-    data(features_all)
 
     if(s==1){
-      col_list <- c('SNR', 'OPO_Res_KNOut_95P_1', 'OPO_Out_DenOut_1_3', 'OPO_Den_Out_SD_3', 'OPO_Res_Out_95P_3', 'OPO_LocDenOut_Out_95P_1', 'OPO_GDeg_Out_Mean_1', 'OPO_GComp_PO_Q95_3')
-      col_nums <- which(colnames(features_all) %in% col_list )
-      ftr_subset <- features_all[ ,col_nums]
+      col_nums <- which(colnames(feat) %in% col_list )
+      ftr_subset <- feat[ ,col_nums]
     }else if (s==2){
-      col_nums <- 1:dim(features_all)[2]
-      ftr_subset <- features_all
+      col_nums <- 1:dim(feat)[2]
+      ftr_subset <- feat
     }
 
     if(p==1){
       # absolute performance  1 or 0
-      data(abs_perfs_all)
-      perfs <- abs_perfs_all
+      abs_perf_1_0 <- apply(perf_vals, 2, function(x) ifelse(x>=0.8,1,0))
+      perfs <- abs_perf_1_0
 
     }else if(p==2){
       # relative performance  1 or 0
-      data(rel_perfs_0.05_all)
-      perfs <- rel_perfs_0.05_all
+      relative_perf_eps_0.05 <- EpsilonGood(perf_vals, 0.05)
+      perfs <- relative_perf_eps_0.05
     }
   }
+
+
   # Train models
   mod_cof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,1]) )
   mod_fabod <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,2]) )
@@ -173,6 +199,7 @@ TrainModels <- function(d, p, s=1){
   models$p <- p
   models$s <- s
   models$col_names <- col_list
+  models$rocpr <- rocpr
   return(models)
 }
 
@@ -191,13 +218,13 @@ TrainModels <- function(d, p, s=1){
 #'
 #' @examples
 #' \dontrun{
-#' out <- CrossValidateModels(1,1,1,5)
+#' out <- CrossValidateModels(1,1,1,1,5)
 #' out$mean_acc
 #' }
 #'
 #' @export
 
-CrossValidateModels <- function(d, p, s=1, n=5){
+CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
   # d is for meta-data set
   # d = 1 is the min_max performance data set
   # d = 2 is for all normalization methods performance dataset
@@ -221,13 +248,18 @@ CrossValidateModels <- function(d, p, s=1, n=5){
     stop("Invalid s. s should equal 1 or 2.")
   }
 
+  if((rocpr!=1)&(rocpr!=2)){
+    stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+
   if(n > 10){
     stop("Consider n less than or equal to 10.")
   }
 
+  e <- new.env()
   if(d==1){
     # ---- ONLY MIN_MAX NORMALIZATION METHOD
-    data(features_mm)
+    data(features_mm, envir=e)
     filenames <- features_mm$filename
 
     if(s==1){
@@ -247,27 +279,44 @@ CrossValidateModels <- function(d, p, s=1, n=5){
 
     if(p==1){
       # absolute performance  1 or 0
-      data(abs_perfs_mm)
+      data(abs_perfs_mm, envir=e)
       perfs <- abs_perfs_mm
 
     }else if(p==2){
       # relative performance  1 or 0
-      data(rel_perfs_0.05_mm)
+      data(rel_perfs_0.05_mm, envir=e)
       perfs <- rel_perfs_0.05_mm
 
     }
 
   }else if(d==2){
     # ---- ALL NORMALIZATION METHODS - PERFORMANCE AND FEATURES
-    stop("This functionality will be added in the near future.")
 
-    data(features_all)
-    filenames <- features_all$filename
+    if(rocpr==1){
+      # ROC values are used
+      data(features_all, envir=e)
+      filenames <- features_all$filename
+      feat <- features_all
+      col_list <- c('OPO_Res_ResOut_Mean_3', 'OPO_GDeg_Out_Mean_3', 'OPO_GComp_PO_Mean_1', 'MEAN_PROD_IQR', 'OPO_Res_Out_Mean_3', 'OPO_Res_ResOut_Max_3', 'OPO_Out_LocDenOut_1_3')
+      data("perf_vals_roc_subset", envir=e)
+      perf_vals <- perf_vals_roc_subset
+
+    }else{
+      # PR values are used
+      stop("This functionality will be added in the near future.")
+      data(features_all_pr, envir=e)
+      filenames <- features_all_pr$filename
+      feat <- features_all_pr
+      data("perf_vals_pr_subset", envir=e)
+      perf_vals <- perf_vals_pr_subset
+      # NEED TO ADD COL_LIST
+      col_list <- c(0)
+    }
+
 
     if(s==1){
-      col_list <- c('SNR', 'OPO_Res_KNOut_95P_1', 'OPO_Out_DenOut_1_3', 'OPO_Den_Out_SD_3', 'OPO_Res_Out_95P_3', 'OPO_LocDenOut_Out_95P_1', 'OPO_GDeg_Out_Mean_1', 'OPO_GComp_PO_Q95_3')
       col_nums <- which(colnames(features_all) %in% col_list )
-      ftr_subset <- features_all[ ,col_nums]
+      ftr_subset <- feat[ ,col_nums]
 
     }else if (s==2){
       col_nums <- 1:dim(features_all)[2]
@@ -281,13 +330,13 @@ CrossValidateModels <- function(d, p, s=1, n=5){
 
     if(p==1){
       # absolute performance  1 or 0
-      data(abs_perfs_all)
-      perfs <- abs_perfs_all
+      abs_perf_1_0 <- apply(perf_vals, 2, function(x) ifelse(x>=0.8,1,0))
+      perfs <- abs_perf_1_0
 
     }else if(p==2){
       # relative performance  1 or 0
-      data(rel_perfs_0.05_all)
-      perfs <- rel_perfs_0.05_all
+      relative_perf_eps_0.05 <- EpsilonGood(perf_vals, 0.05)
+      perfs <- relative_perf_eps_0.05
     }
   }
 
@@ -571,7 +620,8 @@ InstSpace <- function(d=1, vis=FALSE){
 #'
 #'@export
 PlotNewInstance <- function(svm_out, feat, vis=TRUE){
-
+# ---- NEED TO UPDATE THIS FUNCTION
+# ---- FEAT NEED TO BE TRANSFORMED FIRST
   d <- svm_out$d
   coordinates <- svm_out$coordinates
   algorithms <- svm_out$algorithms

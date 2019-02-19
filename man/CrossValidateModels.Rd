@@ -4,12 +4,14 @@
 \alias{CrossValidateModels}
 \title{Cross validates models to reproduce results in  journal and conference papers.}
 \usage{
-CrossValidateModels(d, p, s = 1, n = 5)
+CrossValidateModels(d, p, rocpr = 1, s = 1, n = 5)
 }
 \arguments{
 \item{d}{If \code{d=1} then we take the Min_Max performance values, if \code{d=2} then performance values from all normalization methods are considered. Input values for  \code{d} are only \code{1,2}.}
 
 \item{p}{If \code{p=1} then we take binary values based on absolute performance, i.e. if performance \code{ > 0.8}, if \code{p=2} the relative binary performance values are used. Input values for  \code{p} are only \code{1,2}.}
+
+\item{rocpr}{For all normalization methods, if \code{rocpr=1} then area under \code{ROC} curve is used, if \code{rocpr=2} then area under \code{PR} curve is used. For Min_Max method, i.e. if \code{d=1}, then only \code{ROC} values are used.}
 
 \item{s}{If \code{s=1} then we train the models on a preferred subset of features. If \code{s=2} the models are trained on all features, which takes considerably longer.  Default value \code{s=1}. Input values for  \code{s} are only \code{1,2}.}
 
@@ -28,7 +30,7 @@ Cross validates models to reproduce results in  journal and conference papers.
 }
 \examples{
 \dontrun{
-out <- CrossValidateModels(1,1,1,5)
+out <- CrossValidateModels(1,1,1,1,5)
 out$mean_acc
 }
 
