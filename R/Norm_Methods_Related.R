@@ -2,6 +2,7 @@
 #'
 #'@param rocpr If \code{rocpr=1} then area under ROC curve is used as the performance measure.  If \code{rocpr=2} area under PR curve is used.
 #'@param prop Claimed proportion that Min-Max is better. Used for the null hypothesis.
+#'@param tt If \code{tt=1}, then the two sided binomial test is performed. If \code{tt=2} then the alternative is less than.
 #'
 #'@return A list containing the following:
 #' \describe{
@@ -15,10 +16,13 @@
 #' out$confintervals
 #' @export
 
-IsMinMaxBetter <- function(rocpr=1, prop=0.5){
+IsMinMaxBetter <- function(rocpr=1, prop=0.5, tt=1){
   # if rocpr =1 then it is roc values, if 2 it is pr values
   if((rocpr!=1)&(rocpr!=2)){
     stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+  if((tt!=1)&(tt!=2)){
+    stop("Invalid tt. tt should equal 1 or 2.")
   }
   e <- new.env()
   if(rocpr==1){
@@ -31,6 +35,7 @@ IsMinMaxBetter <- function(rocpr=1, prop=0.5){
     data("perf_vals_pr_all", envir=e)
     perfs <- perf_vals_pr_all[ ,2*(1:(dim(perf_vals_pr_all)[2]/2))]
   }
+
   perfs_mm <- perfs[ , 2*(1:(dim(perfs)[2]/2))]
   perfs_iq <- perfs[ , 2*(1:(dim(perfs)[2]/2))-1]
 
@@ -39,7 +44,7 @@ IsMinMaxBetter <- function(rocpr=1, prop=0.5){
   p_values <- rep(0, dim(perfs_diff)[2])
   conf_ints <- matrix(0,nrow=dim(perfs_diff)[2], ncol=2 )
   for(i in 1:dim(perfs_diff)[2]){
-    binom_test <- binom.test(sum(perfs_diff[ ,i]>0),dim(perfs_diff)[1],prop, alternative="less", conf.level = 0.99)
+    binom_test <- binom.test(sum(perfs_diff[ ,i]>0),dim(perfs_diff)[1],prop, alternative=c("two.sided", "less")[tt], conf.level = 0.99)
     p_values[i] <- binom_test$p.value
     conf_ints[i, ] <- binom_test$conf.int[1:2]
   }
@@ -50,34 +55,38 @@ IsMinMaxBetter <- function(rocpr=1, prop=0.5){
   return(out)
 }
 
-#' Computes percentages of datasets which are sensitive to normalization.
+
+#' Computes sensitive to normalization statistics.
 #' @inheritParams IsMinMaxBetter
-#' @param xi Sensitivity to normalization parameter. 	For a given dataset, we say that an outlier detection method is \code{xi}-sensitive to normalization if the difference between the maximum performance and the minimum performance across all normalization schemes for that outlier detection method is greater than \code{xi}.
-#'
+
 #' @return A list containing the following:
 #' \describe{
-#'  \item{percentages}{The proportion of datasets that gave better performance for Min-Max.}
-#'  \item{pvalues}{The p-value of the  \code{binom.test}.}
-#'  \item{confintervals}{The confidence intervals of the  \code{binom.test}.}
+#'  \item{friedman}{The output of the Friedman test.}
+#'  \item{nemenyi}{The output of the Nemenyi test \code{PMCMR::posthoc.friedman.nemenyi.test}.}
+#'  \item{confintervals}{The confidence intervals of the test  \code{EnvStats::eexp}.}
 #'  \item{methods}{The outlier detection methods.}
-#' }
+#'  \item{means}{The mean of Max - Min performance values for each outlier detection method, across normalization methods.}
+#'  \item{sds}{The standard deviation of Max - Min performance values for each outlier detection method, across normalization methods.}
+#'  \item{rates}{The rates parameters of  the test  \code{EnvStats::eexp}.}
+#'  \item{mat}{The combined output from confidence intervals and Nemenyi test. If \code{1}, then the mean of the column method is greater than the upper confidence value of the row method. If \code{-1}, then the mean of the column method is les than the lower confidence value of the row method. If \code{99}, the Nemenyi test output \code{p}-value is greater than \code{0.99} }    }
+#'
+#'
+#'
 #'
 #'@examples
-#'out <- SensitivityToNorm(1,0.05)
-#'out$confintervals
+#'out <- SensitivityToNorm(1)
+#'out
 #'
 #'@importFrom stats binom.test
 #'
 #'@export
 
-SensitivityToNorm <- function(rocpr, xi){
+SensitivityToNorm <- function(rocpr=1){
   # if rocpr =1 then it is roc values, if 2 it is pr values
   if((rocpr!=1)&(rocpr!=2)){
     stop("Invalid rocpr. rocpr should equal 1 or 2.")
   }
-  if((xi>=1)|(xi<=0)){
-    stop("Invalid xi. xi need to be between 0 and 1.")
-  }
+
   e <- new.env()
   if(rocpr==1){
     # ROC values
@@ -93,31 +102,61 @@ SensitivityToNorm <- function(rocpr, xi){
   num_methods <- dim(perfs)[2]/4
 
   percentages <- rep(0,num_methods)
-  p_values <- rep(0, num_methods)
   conf_ints <- matrix(0,nrow=num_methods, ncol=2 )
+  means <- rep(0, num_methods)
+  sds <- rep(0, num_methods)
+  rates <- rep(0,num_methods)
+  rangediff <- matrix(0, nrow=dim(perfs)[1], ncol=num_methods)
   methods <- c()
 
   for(i in 1:num_methods){
     perf_method <- perfs[ ,st_col:en_col]
-    rangediff <- apply(perf_method, 1, function(x) diff(range(x, na.rm=TRUE)) )
-    percentages[i] <- sum(rangediff > xi )/length(rangediff)
+    rangediff[,i] <- apply(perf_method, 1, function(x) diff(range(x, na.rm=TRUE)) )
+    #percentages[i] <- sum(rangediff > xi )/length(rangediff)
+    means[i] <- mean(rangediff[,i])
+    sds[i] <- sd(rangediff[,i])
 
-    binom_test <- binom.test(sum(rangediff > xi ),length(rangediff), 0.5, alternative="two.sided", conf.level = 0.99)
-    p_values[i] <- binom_test$p.value
-    conf_ints[i, ] <- binom_test$conf.int[1:2]
 
     pos <- regexpr("_", colnames(perfs)[st_col])[1] -1
     method <- substring(colnames(perfs)[st_col], 1, pos)
     methods <- c(methods, method)
 
+    exptest <- EnvStats::eexp(rangediff[,i], method = "mle/mme", ci = TRUE, ci.type = "two-sided",  ci.method = "exact", conf.level = 0.95)
+
+    conf_ints[i, ] <- exptest$interval$limits
+    rates[i] <- exptest$parameters
     st_col <- en_col + 1
     en_col <- en_col + 4
   }
+
+  friedman_test <- stats::friedman.test(rangediff)
+  nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(rangediff)
+
   methods[which(methods=="FAST")] <- "FAST_ABOD"
   out <- list()
-  out$percentages <- percentages
-  out$pvalues <- p_values
+  #out$percentages <- percentages
+  out$friedman <-friedman_test
+  out$nemenyi <- nemenyi
   out$confintervals <- conf_ints
   out$methods <- methods
+  out$means <- means
+  out$sds <- sds
+  out$rates <- rates
+
+  mat <- matrix(0, nrow=(num_methods), ncol=(num_methods))
+  diag(mat) <- 99
+  for(kk in 1:(num_methods)){
+    cond_1 <- which(rates[kk] >conf_ints[ ,2])
+    mat[cond_1, kk] <- -1
+    cond_2 <- which(rates[kk] < conf_ints[ ,1])
+    mat[cond_2, kk] <- 1
+    if(kk!=num_methods){
+      ind_p <- which(nemenyi$p.value[ ,kk] > 0.05 ) +1
+      mat[ind_p, kk] <- 99
+      mat[kk, ind_p] <- 99
+    }
+  }
+
+  out$mat <- mat
   return(out)
 }

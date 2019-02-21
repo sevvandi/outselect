@@ -19,7 +19,9 @@ Imports:
     quantmod,
     dbscan,
     FNN,
-    cluster
+    cluster,
+    PMCMR,
+    EnvStats
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.4.0)

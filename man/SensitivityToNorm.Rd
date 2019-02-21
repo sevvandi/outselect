@@ -2,29 +2,30 @@
 % Please edit documentation in R/Norm_Methods_Related.R
 \name{SensitivityToNorm}
 \alias{SensitivityToNorm}
-\title{Computes percentages of datasets which are sensitive to normalization.}
+\title{Computes sensitive to normalization statistics.}
 \usage{
-SensitivityToNorm(rocpr, xi)
+SensitivityToNorm(rocpr = 1)
 }
 \arguments{
 \item{rocpr}{If \code{rocpr=1} then area under ROC curve is used as the performance measure.  If \code{rocpr=2} area under PR curve is used.}
-
-\item{xi}{Sensitivity to normalization parameter.     For a given dataset, we say that an outlier detection method is \code{xi}-sensitive to normalization if the difference between the maximum performance and the minimum performance across all normalization schemes for that outlier detection method is greater than \code{xi}.}
 }
 \value{
 A list containing the following:
 \describe{
- \item{percentages}{The proportion of datasets that gave better performance for Min-Max.}
- \item{pvalues}{The p-value of the  \code{binom.test}.}
- \item{confintervals}{The confidence intervals of the  \code{binom.test}.}
+ \item{friedman}{The output of the Friedman test.}
+ \item{nemenyi}{The output of the Nemenyi test \code{PMCMR::posthoc.friedman.nemenyi.test}.}
+ \item{confintervals}{The confidence intervals of the test  \code{EnvStats::eexp}.}
  \item{methods}{The outlier detection methods.}
-}
+ \item{means}{The mean of Max - Min performance values for each outlier detection method, across normalization methods.}
+ \item{sds}{The standard deviation of Max - Min performance values for each outlier detection method, across normalization methods.}
+ \item{rates}{The rates parameters of  the test  \code{EnvStats::eexp}.}
+ \item{mat}{The combined output from confidence intervals and Nemenyi test. If \code{1}, then the mean of the column method is greater than the upper confidence value of the row method. If \code{-1}, then the mean of the column method is les than the lower confidence value of the row method. If \code{99}, the Nemenyi test output \code{p}-value is greater than \code{0.99} }    }
 }
 \description{
-Computes percentages of datasets which are sensitive to normalization.
+Computes sensitive to normalization statistics.
 }
 \examples{
-out <- SensitivityToNorm(1,0.05)
-out$confintervals
+out <- SensitivityToNorm(1)
+out
 
 }

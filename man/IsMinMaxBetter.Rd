@@ -4,12 +4,14 @@
 \alias{IsMinMaxBetter}
 \title{Performs \code{binom.test} to see if Min-Max is actually better than Median-IQR method.}
 \usage{
-IsMinMaxBetter(rocpr = 1, prop = 0.5)
+IsMinMaxBetter(rocpr = 1, prop = 0.5, tt = 1)
 }
 \arguments{
 \item{rocpr}{If \code{rocpr=1} then area under ROC curve is used as the performance measure.  If \code{rocpr=2} area under PR curve is used.}
 
 \item{prop}{Claimed proportion that Min-Max is better. Used for the null hypothesis.}
+
+\item{tt}{If \code{tt=1}, then the two sided binomial test is performed. If \code{tt=2} then the alternative is less than.}
 }
 \value{
 A list containing the following:
