@@ -92,10 +92,14 @@ SensitivityToNorm <- function(rocpr=1){
     # ROC values
     data("perf_vals_roc_all", envir=e)
     perfs <- perf_vals_roc_all
+    data("filenames_roc", envir=e)
+    filenames <- filenames_roc
   }else{
     # PR values
     data("perf_vals_pr_all", envir=e)
     perfs <- perf_vals_pr_all
+    data("filenames_pr", envir=e)
+    filenames <- filenames_pr
   }
   st_col <- 1
   en_col <- 4
@@ -109,55 +113,71 @@ SensitivityToNorm <- function(rocpr=1){
   rangediff <- matrix(0, nrow=dim(perfs)[1], ncol=num_methods)
   methods <- c()
 
+
+  # Max - Min for each outlier method across the normalization methods
   for(i in 1:num_methods){
     perf_method <- perfs[ ,st_col:en_col]
     rangediff[,i] <- apply(perf_method, 1, function(x) diff(range(x, na.rm=TRUE)) )
-    #percentages[i] <- sum(rangediff > xi )/length(rangediff)
-    means[i] <- mean(rangediff[,i])
-    sds[i] <- sd(rangediff[,i])
-
 
     pos <- regexpr("_", colnames(perfs)[st_col])[1] -1
     method <- substring(colnames(perfs)[st_col], 1, pos)
     methods <- c(methods, method)
 
-    exptest <- EnvStats::eexp(rangediff[,i], method = "mle/mme", ci = TRUE, ci.type = "two-sided",  ci.method = "exact", conf.level = 0.95)
-
-    conf_ints[i, ] <- exptest$interval$limits
-    rates[i] <- exptest$parameters
     st_col <- en_col + 1
     en_col <- en_col + 4
   }
 
-  friedman_test <- stats::friedman.test(rangediff)
-  nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(rangediff)
-
+  # ---- Find the sources for filenames
+  file_source <-c()
+  for(ll in 1:length(filenames)){
+    fname <- filenames[ll]
+    regobj1 <- regexpr("_C", fname)
+    regobj2 <- regexpr("_withoutdupl", fname)
+    if(regobj1[1]<0){
+      regobj <- regobj2
+    }else if(regobj2[1]<0){
+      regobj <- regobj1
+    }else{
+      regobj <- regobj1
+    }
+    end.ind <- regobj[1]-1
+    file_source <- c(file_source, substring(fname, 1, end.ind))
+  }
+  uniq_f_s <- unique(file_source)
   methods[which(methods=="FAST")] <- "FAST_ABOD"
+  colnames(rangediff) <- methods
+
+  medians <- apply(rangediff, 2, median)
+  ordering <- order(medians)
+  rangediff <- rangediff[, ordering]
+  methods <- methods[ordering]
+
+  df <- cbind.data.frame(file_source, rangediff)
+  # --- Make a big data frame with source, outlier method and sensitivity to normalization
+  for(j in 1:num_methods){
+    temp <- reshape::melt(df[ ,c(1,(j+1))] )
+    colnames(temp) <- c("source", "method", "value")
+    if(j==1){
+      dat <- temp
+    }else{
+      dat <- rbind.data.frame(dat, temp)
+    }
+  }
+
+  df2 <- aggregate(dat$value, by=list(m=dat$method, s=dat$source), FUN=median)
+
+  friedman_test <- stats::friedman.test(y=df2$x, groups=df2$m, blocks=df2$s)
+  nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(y=df2$x, groups=df2$m, blocks=df2$s)
+
+  df3 <- aggregate(df[,-1], by=list(file_source), FUN=median)
+  nemenyi2 <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE, plottype="vline")
+
   out <- list()
-  #out$percentages <- percentages
   out$friedman <-friedman_test
   out$nemenyi <- nemenyi
-  out$confintervals <- conf_ints
   out$methods <- methods
-  out$means <- means
-  out$sds <- sds
-  out$rates <- rates
-
-  mat <- matrix(0, nrow=(num_methods), ncol=(num_methods))
-  diag(mat) <- 99
-  for(kk in 1:(num_methods)){
-    cond_1 <- which(rates[kk] >conf_ints[ ,2])
-    mat[cond_1, kk] <- -1
-    cond_2 <- which(rates[kk] < conf_ints[ ,1])
-    mat[cond_2, kk] <- 1
-  }
-  for(kk in 1:(num_methods-1) ){
-    ind_p <- which(nemenyi$p.value[ ,kk] > 0.05 ) +1
-    mat[ind_p, kk] <- 99
-    mat[kk, ind_p] <- 99
-  }
-
-  out$mat <- mat
+  out$nemenyi2 <- nemenyi2
+  out$medians <- medians
   return(out)
 }
 
@@ -233,9 +253,6 @@ SensitivityToNormMixedMod <- function(rocpr=1){
 
   fit <- lme4::lmer(value ~  method + (1 | source), data=dat)
   obj <- multcomp::glht(fit, linfct = multcomp::mcp(method = "Tukey"))
-  visreg::visreg(fit, partial=FALSE, gg=TRUE) + ggplot2::theme_bw()
-  +  ylab(TeX('$y_{ij.}$'))
-
 
   out <- list()
   out$fit <- fit
