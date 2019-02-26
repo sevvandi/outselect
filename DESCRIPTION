@@ -21,7 +21,10 @@ Imports:
     FNN,
     cluster,
     PMCMR,
-    EnvStats
+    EnvStats,
+    lme4,
+    reshape,
+    multcomp
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.4.0)

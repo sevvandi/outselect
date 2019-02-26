@@ -150,13 +150,96 @@ SensitivityToNorm <- function(rocpr=1){
     mat[cond_1, kk] <- -1
     cond_2 <- which(rates[kk] < conf_ints[ ,1])
     mat[cond_2, kk] <- 1
-    if(kk!=num_methods){
-      ind_p <- which(nemenyi$p.value[ ,kk] > 0.05 ) +1
-      mat[ind_p, kk] <- 99
-      mat[kk, ind_p] <- 99
-    }
+  }
+  for(kk in 1:(num_methods-1) ){
+    ind_p <- which(nemenyi$p.value[ ,kk] > 0.05 ) +1
+    mat[ind_p, kk] <- 99
+    mat[kk, ind_p] <- 99
   }
 
   out$mat <- mat
   return(out)
+}
+
+
+SensitivityToNormMixedMod <- function(rocpr=1){
+  # if rocpr =1 then it is roc values, if 2 it is pr values
+  if((rocpr!=1)&(rocpr!=2)){
+    stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+
+  e <- new.env()
+  if(rocpr==1){
+    # ROC values
+    data("perf_vals_roc_all", envir=e)
+    perfs <- perf_vals_roc_all
+    data("filenames_roc", envir=e)
+    filenames <- filenames_roc
+  }else{
+    # PR values
+    data("perf_vals_pr_all", envir=e)
+    perfs <- perf_vals_pr_all
+    data("filenames_pr", envir=e)
+    filenames <- filenames_pr
+  }
+
+  # ---- Find the sources for filenames
+  file_source <-c()
+  for(ll in 1:length(filenames)){
+    fname <- filenames[ll]
+    regobj1 <- regexpr("_C", fname)
+    regobj2 <- regexpr("_withoutdupl", fname)
+    if(regobj1[1]<0){
+      regobj <- regobj2
+    }else if(regobj2[1]<0){
+      regobj <- regobj1
+    }else{
+      regobj <- regobj1
+    }
+    end.ind <- regobj[1]-1
+    file_source <- c(file_source, substring(fname, 1, end.ind))
+  }
+  uniq_f_s <- unique(file_source)
+
+  st_col <- 1
+  en_col <- 4
+  num_methods <- dim(perfs)[2]/4
+  rangediff <- matrix(0, nrow=dim(perfs)[1], ncol=num_methods)
+  methods <- c()
+  for(i in 1:num_methods){
+    perf_method <- perfs[ ,st_col:en_col]
+    rangediff[,i] <- apply(perf_method, 1, function(x) diff(range(x, na.rm=TRUE)) )
+
+    pos <- regexpr("_", colnames(perfs)[st_col])[1] -1
+    method <- substring(colnames(perfs)[st_col], 1, pos)
+    methods <- c(methods, method)
+    st_col <- st_col + 4
+    en_col <- en_col + 4
+  }
+  methods[which(methods=="FAST")] <- "FAST_ABOD"
+  colnames(rangediff) <- methods
+  df <- cbind.data.frame(file_source, rangediff)
+
+  # --- Make a big data frame with source, outlier method and sensitivity to normalization
+  for(j in 1:num_methods){
+    temp <- reshape::melt(df[ ,c(1,(j+1))] )
+    colnames(temp) <- c("source", "method", "value")
+    if(j==1){
+      dat <- temp
+    }else{
+      dat <- rbind.data.frame(dat, temp)
+    }
+  }
+
+  fit <- lme4::lmer(value ~  method + (1 | source), data=dat)
+  obj <- multcomp::glht(fit, linfct = multcomp::mcp(method = "Tukey"))
+  visreg::visreg(fit, partial=FALSE, gg=TRUE) + ggplot2::theme_bw()
+  +  ylab(TeX('$y_{ij.}$'))
+
+
+  out <- list()
+  out$fit <- fit
+  out$glht <- obj
+  return(out)
+
 }
