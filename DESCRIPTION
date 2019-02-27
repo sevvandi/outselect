@@ -24,7 +24,8 @@ Imports:
     EnvStats,
     lme4,
     reshape,
-    multcomp
+    multcomp,
+    tsutils
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.4.0)

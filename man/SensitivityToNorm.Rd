@@ -13,13 +13,8 @@ SensitivityToNorm(rocpr = 1)
 A list containing the following:
 \describe{
  \item{friedman}{The output of the Friedman test.}
- \item{nemenyi}{The output of the Nemenyi test \code{PMCMR::posthoc.friedman.nemenyi.test}.}
- \item{confintervals}{The confidence intervals of the test  \code{EnvStats::eexp}.}
- \item{methods}{The outlier detection methods.}
- \item{means}{The mean of Max - Min performance values for each outlier detection method, across normalization methods.}
- \item{sds}{The standard deviation of Max - Min performance values for each outlier detection method, across normalization methods.}
- \item{rates}{The rates parameters of  the test  \code{EnvStats::eexp}.}
- \item{mat}{The combined output from confidence intervals and Nemenyi test. If \code{1}, then the mean of the column method is greater than the upper confidence value of the row method. If \code{-1}, then the mean of the column method is les than the lower confidence value of the row method. If \code{99}, the Nemenyi test output \code{p}-value is greater than \code{0.99} }    }
+ \item{nemenyi}{The output of the Nemenyi test \code{tsutils::nemenyi}.}
+}
 }
 \description{
 Computes sensitive to normalization statistics.

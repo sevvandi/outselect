@@ -62,13 +62,8 @@ IsMinMaxBetter <- function(rocpr=1, prop=0.5, tt=1){
 #' @return A list containing the following:
 #' \describe{
 #'  \item{friedman}{The output of the Friedman test.}
-#'  \item{nemenyi}{The output of the Nemenyi test \code{PMCMR::posthoc.friedman.nemenyi.test}.}
-#'  \item{confintervals}{The confidence intervals of the test  \code{EnvStats::eexp}.}
-#'  \item{methods}{The outlier detection methods.}
-#'  \item{means}{The mean of Max - Min performance values for each outlier detection method, across normalization methods.}
-#'  \item{sds}{The standard deviation of Max - Min performance values for each outlier detection method, across normalization methods.}
-#'  \item{rates}{The rates parameters of  the test  \code{EnvStats::eexp}.}
-#'  \item{mat}{The combined output from confidence intervals and Nemenyi test. If \code{1}, then the mean of the column method is greater than the upper confidence value of the row method. If \code{-1}, then the mean of the column method is les than the lower confidence value of the row method. If \code{99}, the Nemenyi test output \code{p}-value is greater than \code{0.99} }    }
+#'  \item{nemenyi}{The output of the Nemenyi test \code{tsutils::nemenyi}.}
+#' }
 #'
 #'
 #'
@@ -105,11 +100,11 @@ SensitivityToNorm <- function(rocpr=1){
   en_col <- 4
   num_methods <- dim(perfs)[2]/4
 
-  percentages <- rep(0,num_methods)
-  conf_ints <- matrix(0,nrow=num_methods, ncol=2 )
-  means <- rep(0, num_methods)
-  sds <- rep(0, num_methods)
-  rates <- rep(0,num_methods)
+  # percentages <- rep(0,num_methods)
+  # conf_ints <- matrix(0,nrow=num_methods, ncol=2 )
+  # means <- rep(0, num_methods)
+  # sds <- rep(0, num_methods)
+  # rates <- rep(0,num_methods)
   rangediff <- matrix(0, nrow=dim(perfs)[1], ncol=num_methods)
   methods <- c()
 
@@ -147,10 +142,10 @@ SensitivityToNorm <- function(rocpr=1){
   methods[which(methods=="FAST")] <- "FAST_ABOD"
   colnames(rangediff) <- methods
 
-  medians <- apply(rangediff, 2, median)
-  ordering <- order(medians)
-  rangediff <- rangediff[, ordering]
-  methods <- methods[ordering]
+  # medians <- apply(rangediff, 2, median)
+  # ordering <- order(medians)
+  # rangediff <- rangediff[, ordering]
+  # methods <- methods[ordering]
 
   df <- cbind.data.frame(file_source, rangediff)
   # --- Make a big data frame with source, outlier method and sensitivity to normalization
@@ -167,19 +162,18 @@ SensitivityToNorm <- function(rocpr=1){
   df2 <- aggregate(dat$value, by=list(m=dat$method, s=dat$source), FUN=median)
 
   friedman_test <- stats::friedman.test(y=df2$x, groups=df2$m, blocks=df2$s)
-  nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(y=df2$x, groups=df2$m, blocks=df2$s)
+  # nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(y=df2$x, groups=df2$m, blocks=df2$s)
 
   df3 <- aggregate(df[,-1], by=list(file_source), FUN=median)
-  nemenyi2 <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE, plottype="vline")
+  nemenyi <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE, plottype="vline")
 
   out <- list()
   out$friedman <-friedman_test
   out$nemenyi <- nemenyi
-  out$methods <- methods
-  out$nemenyi2 <- nemenyi2
-  out$medians <- medians
   return(out)
 }
+
+
 
 
 SensitivityToNormMixedMod <- function(rocpr=1){
