@@ -14,6 +14,7 @@ A list containing the following:
 \describe{
  \item{friedman}{The output of the Friedman test.}
  \item{nemenyi}{The output of the Nemenyi test \code{tsutils::nemenyi}.}
+ \item{rangediff}{For each outlier method and each dataset, the maximum performance minus the minimum performance. }
 }
 }
 \description{

@@ -25,7 +25,9 @@ Imports:
     lme4,
     reshape,
     multcomp,
-    tsutils
+    tsutils,
+    visreg,
+    latex2exp
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.4.0)

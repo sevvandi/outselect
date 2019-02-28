@@ -63,6 +63,7 @@ IsMinMaxBetter <- function(rocpr=1, prop=0.5, tt=1){
 #' \describe{
 #'  \item{friedman}{The output of the Friedman test.}
 #'  \item{nemenyi}{The output of the Nemenyi test \code{tsutils::nemenyi}.}
+#'  \item{rangediff}{For each outlier method and each dataset, the maximum performance minus the minimum performance. }
 #' }
 #'
 #'
@@ -100,11 +101,7 @@ SensitivityToNorm <- function(rocpr=1){
   en_col <- 4
   num_methods <- dim(perfs)[2]/4
 
-  # percentages <- rep(0,num_methods)
-  # conf_ints <- matrix(0,nrow=num_methods, ncol=2 )
-  # means <- rep(0, num_methods)
-  # sds <- rep(0, num_methods)
-  # rates <- rep(0,num_methods)
+
   rangediff <- matrix(0, nrow=dim(perfs)[1], ncol=num_methods)
   methods <- c()
 
@@ -142,10 +139,6 @@ SensitivityToNorm <- function(rocpr=1){
   methods[which(methods=="FAST")] <- "FAST_ABOD"
   colnames(rangediff) <- methods
 
-  # medians <- apply(rangediff, 2, median)
-  # ordering <- order(medians)
-  # rangediff <- rangediff[, ordering]
-  # methods <- methods[ordering]
 
   df <- cbind.data.frame(file_source, rangediff)
   # --- Make a big data frame with source, outlier method and sensitivity to normalization
@@ -159,24 +152,44 @@ SensitivityToNorm <- function(rocpr=1){
     }
   }
 
-  df2 <- aggregate(dat$value, by=list(m=dat$method, s=dat$source), FUN=median)
+  df2 <- stats::aggregate(dat$value, by=list(m=dat$method, s=dat$source), FUN=median)
 
   friedman_test <- stats::friedman.test(y=df2$x, groups=df2$m, blocks=df2$s)
   # nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(y=df2$x, groups=df2$m, blocks=df2$s)
 
-  df3 <- aggregate(df[,-1], by=list(file_source), FUN=median)
-  nemenyi <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE, plottype="vline")
+  df3 <- stats::aggregate(df[,-1], by=list(file_source), FUN=median)
+  nemenyi <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE, plottype="vline", main="Nemenyi test average ranks")
 
   out <- list()
   out$friedman <-friedman_test
   out$nemenyi <- nemenyi
+  out$rangediff <- rangediff
   return(out)
 }
 
 
+#' Computes sensitive to normalization for dataset sources
+#' @inheritParams IsMinMaxBetter
+#' @param xi The xi-sensitivity to normalization parameter xi. Defaults to \code{0.05}
+#'
+#'
+#' @return A list containing the following:
+#' \describe{
+#'  \item{KruskalWallis}{The output of the KruskalWallis from \code{stats::kruskal.test}.}
+#'  \item{max_val}{The dataset source, which is most sensitive to normalization.}
+#'  \item{min_val}{The dataset source, which is least sensitive to normalization. }
+#' }
+#'
+#'
+#'
+#'
+#'@examples
+#'out <- SensitivityNormDatasets(1, 0.05)
+#'out
+#'
+#'@export
 
-
-SensitivityToNormMixedMod <- function(rocpr=1){
+SensitivityNormDatasets <- function(rocpr=1, xi=0.05){
   # if rocpr =1 then it is roc values, if 2 it is pr values
   if((rocpr!=1)&(rocpr!=2)){
     stop("Invalid rocpr. rocpr should equal 1 or 2.")
@@ -189,6 +202,7 @@ SensitivityToNormMixedMod <- function(rocpr=1){
     perfs <- perf_vals_roc_all
     data("filenames_roc", envir=e)
     filenames <- filenames_roc
+
   }else{
     # PR values
     data("perf_vals_pr_all", envir=e)
@@ -232,25 +246,137 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   }
   methods[which(methods=="FAST")] <- "FAST_ABOD"
   colnames(rangediff) <- methods
-  df <- cbind.data.frame(file_source, rangediff)
 
-  # --- Make a big data frame with source, outlier method and sensitivity to normalization
-  for(j in 1:num_methods){
-    temp <- reshape::melt(df[ ,c(1,(j+1))] )
-    colnames(temp) <- c("source", "method", "value")
-    if(j==1){
-      dat <- temp
-    }else{
-      dat <- rbind.data.frame(dat, temp)
-    }
-  }
+  xi_sensitive_num <- apply(rangediff, 1, function(x)sum(x > xi))
+  df <- cbind.data.frame(file_source, xi_sensitive_num)
+  krusk <- stats::kruskal.test(xi_sensitive_num ~ file_source, data=df)
 
-  fit <- lme4::lmer(value ~  method + (1 | source), data=dat)
-  obj <- multcomp::glht(fit, linfct = multcomp::mcp(method = "Tukey"))
+  df2 <- stats::aggregate(df[,-1], by=list(file_source), FUN=mean)
+  range_min <- df2[which.min(df2[,2]), ]
+  range_max <- df2[which.max(df2[,2]), ]
+  colnames(df2) <- c("file_source", "Num_Out_Methods_Sensitive")
 
   out <- list()
-  out$fit <- fit
-  out$glht <- obj
+  out$KruskalWallis <- krusk
+  out$max_val <- range_max
+  out$min_val <- range_min
+
+  return(out)
+}
+
+
+#' Fits a mixed effects model to account for normalization methods and outlier methods accounting for the dataset variants
+#' @inheritParams IsMinMaxBetter
+#'
+#' @return A list containing the following:
+#' \describe{
+#'  \item{fit1}{The first model without interactions between normalization and outlier method.}
+#'  \item{fit2}{The second model with interactions between normalization and outlier method.}
+#'  \item{aov}{The output of an ANOVA test. }
+#' }
+#'
+#'
+#'
+#'
+#'@examples
+#'out <- SensitivityToNormMixedMod(1)
+#'out
+#'
+#'@export
+
+
+SensitivityToNormMixedMod <- function(rocpr=1){
+  # if rocpr =1 then it is roc values, if 2 it is pr values
+  if((rocpr!=1)&(rocpr!=2)){
+    stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+  print("This will take some time. . . . ")
+
+  e <- new.env()
+  if(rocpr==1){
+    # ROC values
+    data("perf_vals_roc_all", envir=e)
+    perfs <- perf_vals_roc_all
+    data("filenames_roc", envir=e)
+    filenames <- filenames_roc
+  }else{
+    # PR values
+    data("perf_vals_pr_all", envir=e)
+    perfs <- perf_vals_pr_all
+    data("filenames_pr", envir=e)
+    filenames <- filenames_pr
+  }
+
+  # ---- Find the sources for filenames
+  file_source <-c()
+  for(ll in 1:length(filenames)){
+    fname <- filenames[ll]
+    regobj1 <- regexpr("_C", fname)
+    regobj2 <- regexpr("_withoutdupl", fname)
+    if(regobj1[1]<0){
+      regobj <- regobj2
+    }else if(regobj2[1]<0){
+      regobj <- regobj1
+    }else{
+      regobj <- regobj1
+    }
+    end.ind <- regobj[1]-1
+    file_source <- c(file_source, substring(fname, 1, end.ind))
+  }
+  uniq_f_s <- unique(file_source)
+
+  # ---- Norm method and outlier method
+  norm.method <- c()
+  outlier.method <- c()
+  for(ii in 1:dim(perfs)[2]){
+    cname2 <- colnames(perfs)[ii]
+    regobj1 <- regexpr("_M", cname2)
+    out.m <- substring(cname2, 1,(regobj1[1]-1))
+    norm.m <- substring(cname2, (regobj1[1]+1),nchar(cname2))
+    norm.method <- c(norm.method,norm.m)
+    outlier.method <- c(outlier.method,out.m )
+  }
+
+  # ---- Make a long data frame
+  num_recs <- dim(perfs)[1]
+  for(kk in 1:dim(perfs)[2]){
+    cname2 <- colnames(perfs)[kk]
+    regobj1 <- regexpr("_M", cname2)
+    out.m <- substring(cname2, 1,(regobj1[1]-1))
+    norm.m <- substring(cname2, (regobj1[1]+1),nchar(cname2))
+
+    if(kk==1){
+      dat.long <- cbind.data.frame(file_source,   rep(out.m, num_recs), rep(norm.m, num_recs), perfs[,kk] )
+    }else{
+      temp <-  cbind.data.frame(file_source,  rep(out.m,num_recs), rep(norm.m,num_recs), perfs[,kk] )
+      dat.long <- rbind.data.frame(dat.long,temp)
+    }
+
+  }
+
+  colnames(dat.long) <- c("Source","Out", "Norm",  "performance")
+  fit.1 <- lme4::lmer(performance ~ Norm + Out + (1 | Source), data=dat.long)
+
+  levels(dat.long$Norm)[levels(dat.long$Norm) == "Mean_SD"] <- "D"
+  levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_IQR"] <- "Q"
+  levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_MAD"] <- "M"
+  levels(dat.long$Norm)[levels(dat.long$Norm) == "Min_Max"] <- "X"
+  levels(dat.long$Norm) <- c("D", "Q", "M", "X")
+
+
+  levels(dat.long$Out)[3] <- "F.ABOD"
+  levels(dat.long$Out)[2] <- "Ens"
+
+  fit.2 <- lme4::lmer(performance ~ Out*Norm + (1 | Source), data=dat.long)
+  aov_obj <- anova(fit.1,fit.2)
+
+
+  print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) + ggplot2::theme_bw()+ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
+
+  out <- list()
+  out$fit1 <- fit.1
+  out$fit2 <- fit.2
+  out$aov <- aov_obj
   return(out)
 
 }
