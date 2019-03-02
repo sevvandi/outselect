@@ -120,21 +120,8 @@ SensitivityToNorm <- function(rocpr=1){
   }
 
   # ---- Find the sources for filenames
-  file_source <-c()
-  for(ll in 1:length(filenames)){
-    fname <- filenames[ll]
-    regobj1 <- regexpr("_C", fname)
-    regobj2 <- regexpr("_withoutdupl", fname)
-    if(regobj1[1]<0){
-      regobj <- regobj2
-    }else if(regobj2[1]<0){
-      regobj <- regobj1
-    }else{
-      regobj <- regobj1
-    }
-    end.ind <- regobj[1]-1
-    file_source <- c(file_source, substring(fname, 1, end.ind))
-  }
+  file_source <- GetFileSources(filenames)
+
   uniq_f_s <- unique(file_source)
   methods[which(methods=="FAST")] <- "FAST_ABOD"
   colnames(rangediff) <- methods
@@ -212,21 +199,7 @@ SensitivityNormDatasets <- function(rocpr=1, xi=0.05){
   }
 
   # ---- Find the sources for filenames
-  file_source <-c()
-  for(ll in 1:length(filenames)){
-    fname <- filenames[ll]
-    regobj1 <- regexpr("_C", fname)
-    regobj2 <- regexpr("_withoutdupl", fname)
-    if(regobj1[1]<0){
-      regobj <- regobj2
-    }else if(regobj2[1]<0){
-      regobj <- regobj1
-    }else{
-      regobj <- regobj1
-    }
-    end.ind <- regobj[1]-1
-    file_source <- c(file_source, substring(fname, 1, end.ind))
-  }
+  file_source <- GetFileSources(filenames)
   uniq_f_s <- unique(file_source)
 
   st_col <- 1
@@ -308,21 +281,7 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   }
 
   # ---- Find the sources for filenames
-  file_source <-c()
-  for(ll in 1:length(filenames)){
-    fname <- filenames[ll]
-    regobj1 <- regexpr("_C", fname)
-    regobj2 <- regexpr("_withoutdupl", fname)
-    if(regobj1[1]<0){
-      regobj <- regobj2
-    }else if(regobj2[1]<0){
-      regobj <- regobj1
-    }else{
-      regobj <- regobj1
-    }
-    end.ind <- regobj[1]-1
-    file_source <- c(file_source, substring(fname, 1, end.ind))
-  }
+  file_source <-GetFileSources(filenames)
   uniq_f_s <- unique(file_source)
 
   # ---- Norm method and outlier method

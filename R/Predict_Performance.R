@@ -345,21 +345,8 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
   result_table <- matrix(0, nrow=n, ncol=dim(perfs)[2])
 
   # Cross validation on file source as many variants of the same file exist
-  file_source <-c()
-  for(ll in 1:length(filenames)){
-    fname <- filenames[ll]
-    regobj1 <- regexpr("_C", fname)
-    regobj2 <- regexpr("_withoutdupl", fname)
-    if(regobj1[1]<0){
-      regobj <- regobj2
-    }else if(regobj2[1]<0){
-      regobj <- regobj1
-    }else{
-      regobj <- regobj1
-    }
-    end.ind <- regobj[1]-1
-    file_source <- c(file_source, substring(fname, 1, end.ind))
-  }
+  file_source <-GetFileSources(filenames)
+
   uniq_f_s <- unique(file_source)
 
   # Create n equally size folds
@@ -425,10 +412,11 @@ CrossValidateSVM <- function(d=1,n=5){
   if(n > 10){
     stop("Consider n less than or equal to 10.")
   }
+  e <- new.env()
 
   if(d==1){
     # coordinates for min-max normalization
-    data("dat_4_svm_mm")
+    data("dat_4_svm_mm", envir=e)
     coordinates <- dat_4_svm_mm[, c(2,3)]
     perfs <- dat_4_svm_mm[ ,4:15]
     filenames <- dat_4_svm_mm[, 1]
@@ -443,21 +431,7 @@ CrossValidateSVM <- function(d=1,n=5){
   }
 
   # Cross validation on file source as many variants of the same file exist
-  file_source <-c()
-  for(ll in 1:length(filenames)){
-    fname <- filenames[ll]
-    regobj1 <- regexpr("_C", fname)
-    regobj2 <- regexpr("_withoutdupl", fname)
-    if(regobj1[1]<0){
-      regobj <- regobj2
-    }else if(regobj2[1]<0){
-      regobj <- regobj1
-    }else{
-      regobj <- regobj1
-    }
-    end.ind <- regobj[1]-1
-    file_source <- c(file_source, substring(fname, 1, end.ind))
-  }
+  file_source <-GetFileSources(filenames)
   uniq_f_s <- unique(file_source)
 
   # Create n equally size folds
@@ -522,26 +496,36 @@ InstSpace <- function(d=1, vis=FALSE){
   if((d!=1)&(d!=2)){
     stop("Invalid d. d should equal 1 or 2.")
   }
+  e <- new.env()
   if(d==1){
     # Instance space using MIN_MAX
-    data("dat_4_svm_mm")
+    data("dat_4_svm_mm", envir=e)
     filenames <- dat_4_svm_mm[ ,1]
     xx <- dat_4_svm_mm[, 2:3]
     perfs <- dat_4_svm_mm[ , 4:15]
     cst <- 150
     gmv <- 0.75
+    num_methods <- dim(perfs)[2]
     print("Training 12 SVMS for outlier detection methods. This will take some time.")
+
+
 
   }else{
     # Instance space using all normalization methods
-    # FOR LATER!
-    stop("This functionality will be added in the near future.")
-  }
+    data("data_4_svm_mix", envir=e)
+    filenames <- data_4_svm_mix[ ,1]
+    xx <- data_4_svm_mix[, 2:3]
+    perfs <- data_4_svm_mix[ , 4:11]
+    cst <- 50
+    num_methods <- dim(perfs)[2]
+    gmv <-  0.25 # 1/num_methods #
+
+    print("Training 8 SVMS for outlier detection methods. This will take some time.")  }
 
   # Train an SVM
-  preds.all <- matrix(0,nrow=nrow(xx), ncol=12)
-  preds.all.1.0 <- matrix(0,nrow=nrow(xx), ncol=12)
-  for(kk in 1:12){
+  preds.all <- matrix(0,nrow=nrow(xx), ncol=num_methods)
+  preds.all.1.0 <- matrix(0,nrow=nrow(xx), ncol=num_methods)
+  for(kk in 1:num_methods){
     dd2 <- cbind.data.frame(xx, as.factor(perfs[,kk]))
     colnames(dd2) <- c("x", "y","Label" )
 
@@ -572,24 +556,37 @@ InstSpace <- function(d=1, vis=FALSE){
   pred.m[-multiples] <- qq
   head(pred.m)
   algorithms <- pred.m
-  algorithms[pred.m==0] <- "None"
-  algorithms[pred.m==1] <- "COF"
-  algorithms[pred.m==2] <- "FAST ABOD"
-  algorithms[pred.m==3] <- "INFLO" # "None" #
-  algorithms[pred.m==4] <- "KDEOS"
-  algorithms[pred.m==5] <- "KNN"
-  algorithms[pred.m==6] <- "KNNW"
-  algorithms[pred.m==7] <-  "LDF" # "None" #
-  algorithms[pred.m==8] <-  "LDOF" #
-  algorithms[pred.m==9] <-  "LOF" #
-  algorithms[pred.m==10] <-  "LOOP" #
-  algorithms[pred.m==11] <-  "ODIN" #
-  algorithms[pred.m==12] <-  "SIMLOF" #
-
-  if(vis){
-    print( ggplot2::ggplot(data=xx, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) +  ggplot2::theme_bw() )
+  if(d==1){
+    algorithms[pred.m==0] <- "None"
+    algorithms[pred.m==1] <- "COF"
+    algorithms[pred.m==2] <- "FAST ABOD"
+    algorithms[pred.m==3] <- "INFLO" # "None" #
+    algorithms[pred.m==4] <- "KDEOS"
+    algorithms[pred.m==5] <- "KNN"
+    algorithms[pred.m==6] <- "KNNW"
+    algorithms[pred.m==7] <-  "LDF" # "None" #
+    algorithms[pred.m==8] <-  "LDOF" #
+    algorithms[pred.m==9] <-  "LOF" #
+    algorithms[pred.m==10] <-  "LOOP" #
+    algorithms[pred.m==11] <-  "ODIN" #
+    algorithms[pred.m==12] <-  "SIMLOF" #
+  }else{
+    algorithms[pred.m==0] <- "None"
+    algorithms[pred.m==1] <- "Ensemble_Median_IQR"
+    algorithms[pred.m==2] <- "LOF_Min_Max"
+    algorithms[pred.m==3] <- "KNN_Median_IQR"
+    algorithms[pred.m==4] <- "FAST_ABOD_Min_Max"
+    algorithms[pred.m==5] <- "iForest_Median_IQR"
+    algorithms[pred.m==6] <- "KDEOS_Median_IQR"
+    algorithms[pred.m==7] <-  "KDEOS_Min_Max"
+    algorithms[pred.m==8] <-  "LDF_Min_Max"
   }
 
+
+  if(vis){
+    algorithms <- as.factor(algorithms)
+    print( ggplot2::ggplot(data=xx, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms, shape=algorithms)) + ggplot2::scale_shape_manual(values=1:nlevels(algorithms)) +  ggplot2::theme_bw() )
+  }
 
   out <- list()
   out$preds10 <- preds.all.1.0
@@ -638,6 +635,7 @@ PlotNewInstance <- function(svm_out, feat, vis=TRUE){
   colnames(new_coords) <- colnames(coordinates)
 
   if(vis){
+    algorithms <- as.factor(algorithms)
     print(ggplot2::ggplot(data=coordinates, ggplot2::aes(x,y))+ ggplot2::geom_point(ggplot2::aes(color=algorithms)) + ggplot2::geom_point(ggplot2::aes(x=new_coords[1],y=new_coords[2]), color="black", shape=17, size=4)  + ggplot2::theme_bw() )
   }
 

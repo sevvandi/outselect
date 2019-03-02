@@ -85,3 +85,52 @@ CorrPrRoc <- function(m=1){
   }
   return(cor_vals)
 }
+
+
+DifficultyDiversitySpace <- function(d=2, rocpr=1){
+  if((d!=1)&(d!=2)){
+    stop("Invalid d. d should equal 1 or 2.")
+  }
+  if((rocpr!=1)&(rocpr!=2)){
+    stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+  e <- new.env()
+  if(d==1){
+    # MIN-MAX normalization
+    data("perf_vals_mm", envir=e)
+    perfs <- perf_vals_mm
+    data("filenames_mm", envir=e)
+    filenames <- filenames_mm
+  }else{
+    # All normalization methods
+    if(rocpr==1){
+      # ROC values
+      data("perf_vals_roc_subset", envir=e)
+      perfs <- perf_vals_roc_subset
+      data("filenames_roc", envir=e)
+      filenames <- filenames_roc
+    }else{
+      # PR values
+      data("perf_vals_pr_subset", envir=e)
+      perfs <- perf_vals_pr_subset
+      data("filenames_pr", envir=e)
+      filenames <- filenames_pr
+    }
+  }
+  mean_vals <- apply(perfs, 1, mean)
+  sd_vals <- apply(perfs, 1, sd)
+
+  file_source <- GetFileSources(filenames)
+  df <- cbind.data.frame(filenames, file_source, mean_vals, sd_vals)
+  colnames(df) <- c("filename", "source", "average", "std" )
+  source_avg <- stats::aggregate(df$average, by=list(df$source), FUN=mean)
+  source_std <- stats::aggregate(df$std, by=list(df$source), FUN=mean)
+
+  source_df <- cbind.data.frame(unique(file_source),source_avg, source_std )
+  colnames(source_df) <- c("source", "source_average", "source_std")
+
+  out <- list()
+  out$dfind <- df
+  out$dfsrc <- source_df
+  return(out)
+}

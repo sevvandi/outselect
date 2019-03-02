@@ -22,3 +22,22 @@ RemoveInfiniteValues <- function(X, cols){
   }
   return(X)
 }
+
+GetFileSources <- function(filenames){
+  file_source <-c()
+  for(ll in 1:length(filenames)){
+    fname <- filenames[ll]
+    regobj1 <- regexpr("_C", fname)
+    regobj2 <- regexpr("_withoutdupl", fname)
+    if(regobj1[1]<0){
+      regobj <- regobj2
+    }else if(regobj2[1]<0){
+      regobj <- regobj1
+    }else{
+      regobj <- regobj1
+    }
+    end.ind <- regobj[1]-1
+    file_source <- c(file_source, substring(fname, 1, end.ind))
+  }
+  return(file_source)
+}
