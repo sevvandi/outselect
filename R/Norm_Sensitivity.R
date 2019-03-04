@@ -330,7 +330,7 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   aov_obj <- anova(fit.1,fit.2)
 
 
-  print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) + ggplot2::theme_bw()+ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
+  print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) + ggplot2::theme_bw()+ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) ) +  ggplot2::geom_errorbar()
 
   out <- list()
   out$fit1 <- fit.1

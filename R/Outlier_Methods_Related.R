@@ -117,20 +117,22 @@ DifficultyDiversitySpace <- function(d=2, rocpr=1){
       filenames <- filenames_pr
     }
   }
-  mean_vals <- apply(perfs, 1, mean)
+
+  # difficulty is 1 - average performance
+  mean_vals <- 1- apply(perfs, 1, mean)
   sd_vals <- apply(perfs, 1, sd)
 
   file_source <- GetFileSources(filenames)
   df <- cbind.data.frame(filenames, file_source, mean_vals, sd_vals)
-  colnames(df) <- c("filename", "source", "average", "std" )
-  source_avg <- stats::aggregate(df$average, by=list(df$source), FUN=mean)
-  source_std <- stats::aggregate(df$std, by=list(df$source), FUN=mean)
+  colnames(df) <- c("filename", "source", "difficulty", "diversity" )
+  source_avg <- stats::aggregate(df$difficulty, by=list(df$source), FUN=mean)
+  source_std <- stats::aggregate(df$diversity, by=list(df$source), FUN=mean)
 
-  source_df <- cbind.data.frame(unique(file_source),source_avg, source_std )
-  colnames(source_df) <- c("source", "source_average", "source_std")
+  source_df <- cbind.data.frame(source_avg, source_std[ ,2])
+  colnames(source_df) <- c("source", "source_difficulty", "source_diversity")
 
   out <- list()
-  out$dfind <- df
+  out$dfall <- df
   out$dfsrc <- source_df
   return(out)
 }
