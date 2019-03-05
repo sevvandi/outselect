@@ -330,7 +330,7 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   aov_obj <- anova(fit.1,fit.2)
 
 
-  print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) + ggplot2::theme_bw()+ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) ) +  ggplot2::geom_errorbar()
+  print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) +ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
 
   out <- list()
   out$fit1 <- fit.1
@@ -338,4 +338,57 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   out$aov <- aov_obj
   return(out)
 
+}
+
+
+IsNormalizingBetter <- function(){
+
+  e <- new.env()
+  # ROC values
+  data("perf_vals_roc_all", envir=e)
+  perfs_all <- e$perf_vals_roc_all
+  data("not_normed_perfs_roc_14", envir=e)
+  perfs_no <- e$not_normed_perfs_roc_14[, -1]
+
+
+  pvalues <- matrix(0, nrow=ncol(perfs_no), ncol=4)
+  column_names <- c("Mean_SD", "Median_IQR", "Median_MAD", "Min_Max")
+  conf_int <- matrix(0, nrow=(ncol(perfs_no)*4), ncol=2)
+  mean_vals <- matrix(0, nrow=(ncol(perfs_no)*4), ncol=2)
+  normed_better <- matrix(0, nrow=ncol(perfs_no), ncol=4)
+  colnames(normed_better) <- column_names
+
+  colnames(pvalues) <- column_names
+  methods <-  c()
+  for(i in 1:dim(perfs_no)[2]){
+    pos <- regexpr("_", colnames(perfs_no)[i]) -1
+    method <- substring(colnames(perfs_no)[i], 1, pos)
+    methods <- c(methods, method)
+
+    for(j in 1:4){
+      k <- (i-1)*4 + j
+      test_out <- stats::t.test(perfs_no[ ,i],perfs_all[ ,k] )
+      pvalues[i,j] <- test_out$p.value
+      conf_int[k,] <- test_out$conf.int[1:2]
+      mean_vals[k, ] <- test_out$estimate
+
+      if(test_out$p.value < 0.05){
+        normed_better[i, j] <- ifelse((test_out$estimate[2]- test_out$estimate[1]>0), 1, -1)
+      }
+
+
+    }
+  }
+  methods[which(methods=="FAST")] <- "FAST_ABOD"
+  rownames(pvalues) <- methods
+  rownames(normed_better) <- methods
+
+  out <- list()
+  out$pvalues <- pvalues
+  out$confints <- conf_int
+  out$mean_vals <- mean_vals
+  out$methods <- methods
+  out$normed_better <- normed_better
+
+  return(out)
 }

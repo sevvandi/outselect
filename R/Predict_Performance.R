@@ -376,7 +376,7 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
     }
   }
   default_accuracy <- apply(perfs, 2, table)*100/dim(perfs)[1]
-  default_accuracy <- default_accuracy[1, ]
+  default_accuracy <- apply(default_accuracy,2, max)
   out <- list()
   out$def_acc <- default_accuracy
   out$results <-result_table
@@ -423,10 +423,12 @@ CrossValidateSVM <- function(d=1,n=5){
     cst <- 150
     gmv <- 0.75
   }else{
-    # d = 2
-    # coordinates for all normalization methods
-    # DO LATER!!
-    stop("This functionality will be added in the near future.")
+    data("data_4_svm_mix_5K", envir=e)
+    coordinates <- data_4_svm_mix_5K[, c(2,3)]
+    perfs <- data_4_svm_mix_5K[ ,4:11]
+    filenames <- data_4_svm_mix_5K[, 1]
+    cst <- 50
+    gmv <- 0.25
 
   }
 
@@ -462,7 +464,7 @@ CrossValidateSVM <- function(d=1,n=5){
     }
   }
   default_accuracy <- apply(perfs, 2, table)*100/dim(perfs)[1]
-  default_accuracy <- default_accuracy[1, ]
+  default_accuracy <- apply(default_accuracy,2, max)
   out <- list()
   out$def_acc <- default_accuracy
   out$results <-result_table
@@ -512,10 +514,10 @@ InstSpace <- function(d=1, vis=FALSE){
 
   }else{
     # Instance space using all normalization methods
-    data("data_4_svm_mix", envir=e)
-    filenames <- data_4_svm_mix[ ,1]
-    xx <- data_4_svm_mix[, 2:3]
-    perfs <- data_4_svm_mix[ , 4:11]
+    data("data_4_svm_mix_5K", envir=e)
+    filenames <- data_4_svm_mix_5K[ ,1]
+    xx <- data_4_svm_mix_5K[, 2:3]
+    perfs <- data_4_svm_mix_5K[ , 4:11]
     cst <- 50
     num_methods <- dim(perfs)[2]
     gmv <-  0.25 # 1/num_methods #

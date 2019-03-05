@@ -136,3 +136,45 @@ DifficultyDiversitySpace <- function(d=2, rocpr=1){
   out$dfsrc <- source_df
   return(out)
 }
+
+
+GetSourceRepository <- function(d=2){
+  if((d!=1)&(d!=2)){
+    stop("Invalid d. d should equal 1 or 2.")
+  }
+  e <- new.env()
+  if(d==1){
+    # Min-Max normalization
+    data("filenames_mm", envir=e)
+    filenames <- e$filenames_mm
+  }else{
+    # Mix of norm and outlier methods
+    data("filenames_roc", envir=e)
+    filenames <- e$filenames_roc
+  }
+  wierd.list <- c()
+  file_repo_src <-c()
+  # Campos source = 1
+  # Goldstein source = 2
+  # UCI source = 3
+  for(i in 1:length(filenames)){
+    fname <- filenames[i]
+    regobj1 <- regexpr("_C", fname)  # UCI source = 3
+    regobj2 <- regexpr("_withoutdupl", fname)  # Campos source = 1
+    regobj3 <- regexpr("unsupervised", fname)  # Goldstein source = 2
+
+    if(regobj2[1]>0){
+      src <- 1
+    }else if(regobj1[1]>0){
+      src <- 3
+    }else if(regobj3[1]>0){
+      src <- 2
+    }else{
+      wierd.list <- c(wierd.list, i)
+      src <- 0
+    }
+    file_repo_src <- c(file_repo_src, src)
+  }
+  file_repo_details <- cbind.data.frame(filenames, file_repo_src)
+  return(file_repo_details)
+}
