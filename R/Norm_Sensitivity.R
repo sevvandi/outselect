@@ -165,6 +165,7 @@ SensitivityToNorm <- function(rocpr=1){
 #'  \item{KruskalWallis}{The output of the KruskalWallis from \code{stats::kruskal.test}.}
 #'  \item{max_val}{The dataset source, which is most sensitive to normalization.}
 #'  \item{min_val}{The dataset source, which is least sensitive to normalization. }
+#'  \item{xi_sensitive_num}{For how many outlier methods each dataset is sensitive to normalization.}
 #' }
 #'
 #'
@@ -233,6 +234,7 @@ SensitivityNormDatasets <- function(rocpr=1, xi=0.05){
   out$KruskalWallis <- krusk
   out$max_val <- range_max
   out$min_val <- range_min
+  out$xi_sensitive_num <- xi_sensitive_num
 
   return(out)
 }
