@@ -79,7 +79,7 @@ CrossValidateSensitivityToNorm <- function(rocpr=1, xi=0.05, n=10){
 
   # features are in ftrs
   # performance values in perfs
-  result_table <- matrix(0, nrow=n, ncol=dim(perfs)[2])
+  result_table <- matrix(0, nrow=n, ncol=num_methods)
 
   # Cross validation on file source as many variants of the same file exist
   file_source <-c()
@@ -126,11 +126,12 @@ CrossValidateSensitivityToNorm <- function(rocpr=1, xi=0.05, n=10){
     }
   }
   default_accuracy <- apply(rdiff, 2, table)*100/dim(rdiff)[1]
-  default_accuracy <- default_accuracy[1, ]
+  default_accuracy <- apply(default_accuracy,2, max)
   out <- list()
   out$def_acc <- default_accuracy
   out$results <-result_table
   out$mean_acc <- apply(result_table, 2, mean)
+  out$methods <- methods
   return(out)
 }
 
