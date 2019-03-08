@@ -135,3 +135,43 @@ CrossValidateSensitivityToNorm <- function(rocpr=1, xi=0.05, n=10){
   return(out)
 }
 
+
+
+PredictNormMethod <- function(rocpr=1, xi=0.05, n=10){
+  # Predict normalization method, either Min_Max or Median_IQR
+  if((rocpr!=1)&(rocpr!=2)){
+    stop("Invalid rocpr. rocpr should equal 1 or 2.")
+  }
+
+  if(n > 10){
+    stop("Consider n less than or equal to 10.")
+  }
+
+  e <- new.env()
+  if(rocpr==1){
+    # ROC values are used
+    data(features_all, envir=e)
+    filenames <- features_all$filename
+    feat <- features_all
+    data("perf_vals_roc_all", envir=e)
+    num_methods <- dim(perf_vals_roc_all)[2]/4
+    perfs <- perf_vals_roc_all[ ,2*(1:(2*num_methods))]
+  }else{
+    # PR values are used
+    data(features_all_pr, envir=e)
+    filenames <- features_all_pr$filename
+    feat <- features_all_pr
+    data("perf_vals_pr_all", envir=e)
+    perfs <- perf_vals_pr_all[ ,2*(1:(2*num_methods))]
+  }
+
+  col_nums <- 1:dim(feat)[2]
+  sds <- apply(feat, 2, sd)
+  rm_cols <- c(1, which(sds==0)) # to remove the filename
+  col_nums <- setdiff(col_nums,rm_cols)
+  ftrs <- feat[ ,-rm_cols]
+  cat("Using all", length(col_nums), "features. This will take REALLY LONG!  \n")
+
+
+}
+
