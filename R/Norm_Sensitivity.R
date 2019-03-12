@@ -331,8 +331,12 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   fit.2 <- lme4::lmer(performance ~ Out*Norm + (1 | Source), data=dat.long)
   aov_obj <- anova(fit.1,fit.2)
 
+  if(rocpr==1){
+    print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) +ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
 
-  print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) +ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
+  }else{
+    print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) +ggplot2::ylim(0.05,0.20)  + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
+  }
 
   out <- list()
   out$fit1 <- fit.1
