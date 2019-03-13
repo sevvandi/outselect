@@ -196,7 +196,7 @@ PredictNormMethod <- function(rocpr=1, xi=0.05, n=5, method_nums=1:14){
 
     j <- which(method_nums==i)
 
-    default_accuracy <- table(max.norm.1)/length(max.norm.1)
+    default_accuracy <- table(max.norm)/length(max.norm)
     default_acc[j] <- max(default_accuracy)
 
 
