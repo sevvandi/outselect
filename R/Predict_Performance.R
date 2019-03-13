@@ -19,6 +19,7 @@
 
 PredictPerformance <- function(ftrs, models){
   ftrs <- as.data.frame(ftrs)
+  nn <- dim(ftrs)[1]
 
   d <- models$d
   p <- models$p
@@ -26,26 +27,73 @@ PredictPerformance <- function(ftrs, models){
   col_names <- models$col_names
 
   x <- ftrs[,col_names]
+  if(nn==1){
+    # only one record
+    if(d==1){
+      preds <- matrix(0,nrow=nn, ncol=12)
+      colnames(preds) <- c("COF", "FAST_ABOD", "INFLO", "KDEOS", "KNN", "KNNW", "LDF", "LDOF", "LOF", "LOOP", "ODIN", "SIMLOF")
 
-  if(d==1){
-    preds <- matrix(0,nrow=1, ncol=12)
-    colnames(preds) <- c("COF", "FAST_ABOD", "INFLO", "KDEOS", "KNN", "KNNW", "LDF", "LDOF", "LOF", "LOOP", "ODIN", "SIMLOF")
+      preds[,1] <- predict(models$cof,newdata=x, type="prob")[2]
+      preds[,2]<- predict(models$fabod,newdata=x, type="prob")[2]
+      preds[,3] <- predict(models$inflo,newdata=x, type="prob")[2]
+      preds[,4] <- predict(models$kdeos,newdata=x, type="prob")[2]
+      preds[,5] <- predict(models$knn,newdata=x, type="prob")[2]
+      preds[,6] <- predict(models$knnw,newdata=x, type="prob")[2]
+      preds[,7] <- predict(models$ldf,newdata=x, type="prob")[2]
+      preds[,8] <- predict(models$ldof,newdata=x, type="prob")[2]
+      preds[,9]<- predict(models$lof,newdata=x, type="prob")[2]
+      preds[,10] <- predict(models$loop,newdata=x, type="prob")[2]
+      preds[,11] <- predict(models$odin,newdata=x, type="prob")[2]
+      preds[,12] <- predict(models$simlof,newdata=x, type="prob")[2]
+    }else{
+      # d=2
+      preds <- matrix(0,nrow=nn, ncol=8)
+      colnames(preds) <- c("Ensemble_Median_IQR", "LOF_Min_Max", "KNN_Median_IQR", "FAST_ABOD_Min_Max", "iForest_Median_IQR",  "KDEOS_Median_IQR", "KDEOS_Min_Max", "LDF_Min_Max")
+      preds[,1] <- predict(models$mod_ens_med_iqr,newdata=x, type="prob")[2]
+      preds[,2]<- predict(models$mod_lof_min_max,newdata=x, type="prob")[2]
+      preds[,3] <- predict(models$mod_knn_med_iqr,newdata=x, type="prob")[2]
+      preds[,4] <- predict(models$mod_fabod_min_max,newdata=x, type="prob")[2]
+      preds[,5] <- predict(models$mod_iforest_med_iqr,newdata=x, type="prob")[2]
+      preds[,6] <- predict(models$mod_kdeos_med_iqr,newdata=x, type="prob")[2]
+      preds[,7] <- predict(models$mod_kdeos_min_max,newdata=x, type="prob")[2]
+      preds[,8] <- predict(models$mod_ldf_min_max,newdata=x, type="prob")[2]
 
-    preds[1] <- predict(models$cof,newdata=x, type="prob")[2]
-    preds[2]<- predict(models$fabod,newdata=x, type="prob")[2]
-    preds[3] <- predict(models$inflo,newdata=x, type="prob")[2]
-    preds[4] <- predict(models$kdeos,newdata=x, type="prob")[2]
-    preds[5] <- predict(models$knn,newdata=x, type="prob")[2]
-    preds[6] <- predict(models$knnw,newdata=x, type="prob")[2]
-    preds[7] <- predict(models$ldf,newdata=x, type="prob")[2]
-    preds[8] <- predict(models$ldof,newdata=x, type="prob")[2]
-    preds[9]<- predict(models$lof,newdata=x, type="prob")[2]
-    preds[10] <- predict(models$loop,newdata=x, type="prob")[2]
-    preds[11] <- predict(models$odin,newdata=x, type="prob")[2]
-    preds[12] <- predict(models$simlof,newdata=x, type="prob")[2]
+    }
   }else{
-    stop("This functionality will be added in the near future.")
+    if(d==1){
+      preds <- matrix(0,nrow=nn, ncol=12)
+      colnames(preds) <- c("COF", "FAST_ABOD", "INFLO", "KDEOS", "KNN", "KNNW", "LDF", "LDOF", "LOF", "LOOP", "ODIN", "SIMLOF")
+
+      preds[,1] <- predict(models$cof,newdata=x, type="prob")[ ,2]
+      preds[,2]<- predict(models$fabod,newdata=x, type="prob")[ ,2]
+      preds[,3] <- predict(models$inflo,newdata=x, type="prob")[ ,2]
+      preds[,4] <- predict(models$kdeos,newdata=x, type="prob")[ ,2]
+      preds[,5] <- predict(models$knn,newdata=x, type="prob")[ ,2]
+      preds[,6] <- predict(models$knnw,newdata=x, type="prob")[ ,2]
+      preds[,7] <- predict(models$ldf,newdata=x, type="prob")[ ,2]
+      preds[,8] <- predict(models$ldof,newdata=x, type="prob")[ ,2]
+      preds[,9]<- predict(models$lof,newdata=x, type="prob")[ ,2]
+      preds[,10] <- predict(models$loop,newdata=x, type="prob")[ ,2]
+      preds[,11] <- predict(models$odin,newdata=x, type="prob")[ ,2]
+      preds[,12] <- predict(models$simlof,newdata=x, type="prob")[ ,2]
+    }else{
+      # d=2
+      preds <- matrix(0,nrow=nn, ncol=8)
+      colnames(preds) <- c("Ensemble_Median_IQR", "LOF_Min_Max", "KNN_Median_IQR", "FAST_ABOD_Min_Max", "iForest_Median_IQR",  "KDEOS_Median_IQR", "KDEOS_Min_Max", "LDF_Min_Max")
+      preds[,1] <- predict(models$mod_ens_med_iqr,newdata=x, type="prob")[ ,2]
+      preds[,2]<- predict(models$mod_lof_min_max,newdata=x, type="prob")[ ,2]
+      preds[,3] <- predict(models$mod_knn_med_iqr,newdata=x, type="prob")[ ,2]
+      preds[,4] <- predict(models$mod_fabod_min_max,newdata=x, type="prob")[ ,2]
+      preds[,5] <- predict(models$mod_iforest_med_iqr,newdata=x, type="prob")[ ,2]
+      preds[,6] <- predict(models$mod_kdeos_med_iqr,newdata=x, type="prob")[ ,2]
+      preds[,7] <- predict(models$mod_kdeos_min_max,newdata=x, type="prob")[ ,2]
+      preds[,8] <- predict(models$mod_ldf_min_max,newdata=x, type="prob")[ ,2]
+
+    }
   }
+
+
+
   return(preds)
 }
 
@@ -166,34 +214,56 @@ TrainModels <- function(d, p, rocpr=1, s=1){
     }
   }
 
+  if(d==1){
+    # Train models
+    mod_cof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,1]) )
+    mod_fabod <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,2]) )
+    mod_inflo <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,3]) )
+    mod_kdeos <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,4]) )
+    mod_knn <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,5]) )
+    mod_knnw <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,6]) )
+    mod_ldf <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,7]) )
+    mod_ldof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,8]) )
+    mod_lof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,9]) )
+    mod_loop <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,10]) )
+    mod_odin <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,11]) )
+    mod_simlof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,12]) )
 
-  # Train models
-  mod_cof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,1]) )
-  mod_fabod <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,2]) )
-  mod_inflo <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,3]) )
-  mod_kdeos <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,4]) )
-  mod_knn <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,5]) )
-  mod_knnw <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,6]) )
-  mod_ldf <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,7]) )
-  mod_ldof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,8]) )
-  mod_lof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,9]) )
-  mod_loop <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,10]) )
-  mod_odin <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,11]) )
-  mod_simlof <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,12]) )
+    models <- list()
+    models$cof <- mod_cof
+    models$fabod <- mod_fabod
+    models$inflo <- mod_inflo
+    models$kdeos <- mod_kdeos
+    models$knn <- mod_knn
+    models$knnw <- mod_knnw
+    models$ldf <- mod_ldf
+    models$ldof <- mod_ldof
+    models$lof <- mod_lof
+    models$loop <- mod_loop
+    models$odin <- mod_odin
+    models$simlof <- mod_simlof
+  }else{
+    # d =2
+    mod_ens_med_iqr <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,1]) )
+    mod_lof_min_max <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,2]) )
+    mod_knn_med_iqr <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,3]) )
+    mod_fabod_min_max <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,4]) )
+    mod_iforest_med_iqr <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,5]) )
+    mod_kdeos_med_iqr <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,6]) )
+    mod_kdeos_min_max <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,7]) )
+    mod_ldf_min_max <- randomForest::randomForest(ftr_subset, as.factor(perfs[ ,8]) )
 
-  models <- list()
-  models$cof <- mod_cof
-  models$fabod <- mod_fabod
-  models$inflo <- mod_inflo
-  models$kdeos <- mod_kdeos
-  models$knn <- mod_knn
-  models$knnw <- mod_knnw
-  models$ldf <- mod_ldf
-  models$ldof <- mod_ldof
-  models$lof <- mod_lof
-  models$loop <- mod_loop
-  models$odin <- mod_odin
-  models$simlof <- mod_simlof
+    models <- list()
+    models$mod_ens_med_iqr <- mod_ens_med_iqr
+    models$mod_lof_min_max <- mod_lof_min_max
+    models$mod_knn_med_iqr <- mod_knn_med_iqr
+    models$mod_fabod_min_max <- mod_fabod_min_max
+    models$mod_iforest_med_iqr <- mod_iforest_med_iqr
+    models$mod_kdeos_med_iqr <- mod_kdeos_med_iqr
+    models$mod_kdeos_min_max <- mod_kdeos_min_max
+    models$mod_ldf_min_max <- mod_ldf_min_max
+  }
+
   models$cols <- col_nums
   models$d <- d
   models$p <- p
