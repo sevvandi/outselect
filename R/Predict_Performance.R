@@ -332,6 +332,7 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
     data(features_mm, envir=e)
     filenames <- features_mm$filename
 
+
     if(s==1){
       col_list <- c('OPO_Res_ResOut_Median_1', 'OPO_Den_Out_95P_1', 'Mean_Entropy_Attr', 'OPO_Res_Out_Mean_1', 'OPO_GDeg_PO_Mean_1',    'IQR_TO_SD_95', 'OPO_GDeg_Out_Mean_1')
       col_nums <- which(colnames(features_mm) %in% col_list )
@@ -408,11 +409,15 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
       relative_perf_eps_0.05 <- EpsilonGood(perf_vals, 0.05)
       perfs <- relative_perf_eps_0.05
     }
+
   }
 
   # features are in ftr_subset
   # performance values in perfs
   result_table <- matrix(0, nrow=n, ncol=dim(perfs)[2])
+  pred_algs <- matrix(0, nrow=length(filenames), ncol=dim(perfs)[2])
+  colnames(pred_algs) <- colnames(perfs)
+
 
   # Cross validation on file source as many variants of the same file exist
   file_source <-GetFileSources(filenames)
@@ -441,6 +446,7 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
       cat("Fold ", i, " Method " , j, "... \n")
       model <- randomForest::randomForest(trainData, as.factor(trainLabels[ ,j]))
       preds <- predict(model, testData, type="class")
+      pred_algs[testIndices,j] <- predict(model, testData, type="prob")[ ,2]
       result_table[i,j] <- sum(preds==testLabels[ ,j])/length(testLabels[ ,j])
       print(paste("Accuracy",  result_table[i,j]) )
     }
@@ -451,6 +457,7 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
   out$def_acc <- default_accuracy
   out$results <-result_table
   out$mean_acc <- apply(result_table, 2, mean)
+  out$algo_preds <- pred_algs
   return(out)
 }
 
