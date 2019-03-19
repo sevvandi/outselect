@@ -331,6 +331,8 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
     # ---- ONLY MIN_MAX NORMALIZATION METHOD
     data(features_mm, envir=e)
     filenames <- features_mm$filename
+    data("perf_vals_mm", envir=e)
+    perf_best <- apply(perf_vals_mm, 1, which.max)
 
 
     if(s==1){
@@ -372,6 +374,8 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
       data("perf_vals_roc_subset", envir=e)
       perf_vals <- perf_vals_roc_subset
 
+
+
     }else{
       # PR values are used
       stop("This functionality will be added in the near future.")
@@ -381,9 +385,10 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
       data("perf_vals_pr_subset", envir=e)
       perf_vals <- perf_vals_pr_subset
       # NEED TO ADD COL_LIST
-      col_list <- c(0)
+      col_list <- c()
     }
 
+    perf_best <- apply(perf_vals, 1, which.max)
 
     if(s==1){
       col_nums <- which(colnames(features_all) %in% col_list )
@@ -417,7 +422,8 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
   result_table <- matrix(0, nrow=n, ncol=dim(perfs)[2])
   pred_algs <- matrix(0, nrow=length(filenames), ncol=dim(perfs)[2])
   colnames(pred_algs) <- colnames(perfs)
-
+  pred_best <- matrix(0, nrow=length(filenames), ncol=dim(perfs)[2])
+  colnames(pred_best) <- colnames(perfs)
 
   # Cross validation on file source as many variants of the same file exist
   file_source <-GetFileSources(filenames)
@@ -442,6 +448,13 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
     trainData <- ftr_subset[-testIndices, ]
     testLabels <- perfs[testIndices, ]
     trainLabels <- perfs[-testIndices, ]
+
+    # Train model for best method
+    testLabBest <- perf_best[testIndices]
+    trainLabBest <- perf_best[-testIndices]
+    modelBest <-randomForest::randomForest(trainData, as.factor(paste(trainLabBest)))
+    pred_best[testIndices,] <- predict(modelBest, testData, type="prob" )
+
     for(j in 1:dim(perfs)[2]){
       cat("Fold ", i, " Method " , j, "... \n")
       model <- randomForest::randomForest(trainData, as.factor(trainLabels[ ,j]))
@@ -458,6 +471,7 @@ CrossValidateModels <- function(d, p, rocpr=1, s=1, n=5){
   out$results <-result_table
   out$mean_acc <- apply(result_table, 2, mean)
   out$algo_preds <- pred_algs
+  out$pred_best <- pred_best
   return(out)
 }
 
@@ -720,3 +734,8 @@ PlotNewInstance <- function(svm_out, feat, vis=TRUE){
 
   return(new_coords)
 }
+
+
+
+
+
