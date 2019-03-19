@@ -260,8 +260,9 @@ SensitivityNormDatasets <- function(rocpr=1, xi=0.05){
 #'@export
 
 
-SensitivityToNormMixedMod <- function(rocpr=1){
+SensitivityToNormMixedMod <- function(rocpr=1, ds=FALSE, pp=FALSE){
   # if rocpr =1 then it is roc values, if 2 it is pr values
+  # ds is a switch for down sampling. If ds == TRUE, then we down sample the observations such that each dataset source has a similar number of dataset variants generated.
   if((rocpr!=1)&(rocpr!=2)){
     stop("Invalid rocpr. rocpr should equal 1 or 2.")
   }
@@ -271,9 +272,18 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   if(rocpr==1){
     # ROC values
     data("perf_vals_roc_all", envir=e)
-    perfs <- perf_vals_roc_all
     data("filenames_roc", envir=e)
-    filenames <- filenames_roc
+    df_normed <- cbind.data.frame(e$filenames_roc, e$perf_vals_roc_all)
+    colnames(df_normed) <- c("filename", colnames(e$perf_vals_roc_all))
+
+    data("not_normed_perfs_roc_14", envir=e)
+    df_ori <- e$not_normed_perfs_roc_14
+
+    df <- merge(df_ori, df_normed)
+
+
+    filenames <- df$filename
+    perfs <- df[ ,-1]
   }else{
     # PR values
     data("perf_vals_pr_all", envir=e)
@@ -286,12 +296,37 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   file_source <-GetFileSources(filenames)
   uniq_f_s <- unique(file_source)
 
+  if(ds){
+    # Downsampling is set to TRUE
+    # Down sample such that each source dataset has approximately a fixed number of variants
+    set.seed(1)
+    pereach <- 10
+    tab_fs <- table(file_source)
+    rec_sel <- c()
+    for(l in 1:length(uniq_f_s)){
+     if(tab_fs[l]>pereach){
+       rec_fs <- which(file_source %in% names(tab_fs)[l])
+       temp <- sample(rec_fs, pereach)
+       if(l==1){
+         rec_sel <-  temp
+       }else{
+         rec_sel <- c(rec_sel, temp)
+       }
+     }
+    }
+    file_source <- file_source[rec_sel]
+    uniq_f_s <- unique(file_source)
+    filenames <- filenames[rec_sel]
+    perfs <- perfs[rec_sel, ]
+  }
   # ---- Norm method and outlier method
   norm.method <- c()
   outlier.method <- c()
   for(ii in 1:dim(perfs)[2]){
     cname2 <- colnames(perfs)[ii]
-    regobj1 <- regexpr("_M", cname2)
+    regobj0 <- regexpr("_Original", cname2)
+    regobj <- regexpr("_M", cname2)
+    regobj1 <- ifelse(regobj0[1]>0, regobj0, regobj)
     out.m <- substring(cname2, 1,(regobj1[1]-1))
     norm.m <- substring(cname2, (regobj1[1]+1),nchar(cname2))
     norm.method <- c(norm.method,norm.m)
@@ -303,6 +338,10 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   for(kk in 1:dim(perfs)[2]){
     cname2 <- colnames(perfs)[kk]
     regobj1 <- regexpr("_M", cname2)
+    regobj0 <- regexpr("_Original", cname2)
+    regobj <- regexpr("_M", cname2)
+    regobj1 <- ifelse(regobj0[1]>0, regobj0, regobj)
+
     out.m <- substring(cname2, 1,(regobj1[1]-1))
     norm.m <- substring(cname2, (regobj1[1]+1),nchar(cname2))
 
@@ -318,11 +357,21 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   colnames(dat.long) <- c("Source","Out", "Norm",  "performance")
   fit.1 <- lme4::lmer(performance ~ Norm + Out + (1 | Source), data=dat.long)
 
-  levels(dat.long$Norm)[levels(dat.long$Norm) == "Mean_SD"] <- "D"
-  levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_IQR"] <- "Q"
-  levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_MAD"] <- "M"
-  levels(dat.long$Norm)[levels(dat.long$Norm) == "Min_Max"] <- "X"
-  levels(dat.long$Norm) <- c("D", "Q", "M", "X")
+  if(rocpr==1){
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Original"] <- "O"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Mean_SD"] <- "D"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_IQR"] <- "Q"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_MAD"] <- "M"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Min_Max"] <- "X"
+    levels(dat.long$Norm) <- c("O", "D", "Q", "M", "X")
+  }else{
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Mean_SD"] <- "D"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_IQR"] <- "Q"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Median_MAD"] <- "M"
+    levels(dat.long$Norm)[levels(dat.long$Norm) == "Min_Max"] <- "X"
+    levels(dat.long$Norm) <- c("D", "Q", "M", "X")
+  }
+
 
 
   levels(dat.long$Out)[3] <- "F.ABOD"
@@ -332,10 +381,15 @@ SensitivityToNormMixedMod <- function(rocpr=1){
   aov_obj <- anova(fit.1,fit.2)
 
   if(rocpr==1){
-    print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) +ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
+    if(ds){
+      print( visreg::visreg(fit.2,"Norm", by="Out", partial=pp, gg=TRUE)  + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) + ggplot2::theme_bw() )  # +ggplot2::ylim(0.5,0.71)
+    }else{
+      print( visreg::visreg(fit.2,"Norm", by="Out", partial=pp, gg=TRUE) +ggplot2::ylim(0.54,0.69) + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) + ggplot2::theme_bw() )
+
+    }
 
   }else{
-    print( visreg::visreg(fit.2,"Norm", by="Out", partial=FALSE, gg=TRUE) +ggplot2::ylim(0.05,0.20)  + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) )
+    print( visreg::visreg(fit.2,"Norm", by="Out", partial=pp, gg=TRUE) +ggplot2::ylim(0.05,0.20)  + ggplot2::ylab(latex2exp::TeX('$y_{ij.}$')) + ggplot2::theme_bw() )
   }
 
   out <- list()
