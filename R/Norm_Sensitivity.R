@@ -145,7 +145,13 @@ SensitivityToNorm <- function(rocpr=1){
   # nemenyi <- PMCMR::posthoc.friedman.nemenyi.test(y=df2$x, groups=df2$m, blocks=df2$s)
 
   df3 <- stats::aggregate(df[,-1], by=list(file_source), FUN=median)
-  nemenyi <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE, plottype="vline", main="Nemenyi test average ranks")
+
+  nemenyi <- tsutils::nemenyi(as.matrix(df3[ ,-1]), conf.level=0.95, sort=TRUE,  plottype="matrix", main="Nemenyi test average ranks") # sort=TRUE,
+  order_methods <- names(nemenyi$means)
+  df4 <- df3[ ,-1]
+  df5 <- df4[ ,order_methods]
+  print("Doing the ordered graph!")
+  nemenyi <- tsutils::nemenyi(as.matrix(df5), conf.level=0.95, sort=TRUE,  plottype="matrix", main="Nemenyi test average ranks")
 
   out <- list()
   out$friedman <-friedman_test
