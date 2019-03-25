@@ -715,16 +715,24 @@ PlotNewInstance <- function(svm_out, feat, vis=TRUE){
   d <- svm_out$d
   coordinates <- svm_out$coordinates
   algorithms <- svm_out$algorithms
+  feat <- as.data.frame(feat)
 
   if(d==1){
     # MIN_MAX NORMALIZATION
     proj_mat <- matrix( c(-0.0460, 0.1202, -0.0862, -0.0938, 0.1854, 0.1737, 0.3543, -0.2847, 0.0378, -0.2078,-0.2025, -0.0822, 0.1845, -0.1325), nrow=2 )
     col_names <- c("OPO_Res_ResOut_Median_1", "OPO_Den_Out_95P_1", "Mean_Entropy_Attr", "OPO_Res_Out_Mean_1", "OPO_GDeg_PO_Mean_1", "IQR_TO_SD_95", "OPO_GDeg_Out_Mean_1")
+    x_bef <- feat[ , col_names]
+   # xx <- renormalize(x_bef, d)
+    xx <- x_bef
   }else{
     # ALL NORMALIZATION METHODS
-    stop("This functionality will be available in the near future.")
+    col_names <- c("OPO_Res_ResOut_Mean_3","OPO_GDeg_Out_Mean_3", "OPO_GComp_PO_Mean_1", "MEAN_PROD_IQR", "OPO_Res_Out_Mean_3", "OPO_Res_ResOut_Max_3",   "OPO_Out_LocDenOut_1_3" )
+    x_bef <- feat[ , col_names]
+    xx <- renormalize(x_bef, d)
+    proj_mat <- matrix( c(-0.00292627076652680,-0.632192408787632,-0.569663704435377,-0.174829830230183,0.0268201438117375,-0.290501129270193,-0.139810891656474, 0.332268685436933,-0.224517922081636,-0.0629031205759270,0.182180599272572,0.543197310499069,0.427965822151968,0.389217122011117 ), nrow=2, byrow=TRUE )
+
   }
-  new_coords <- t(proj_mat%*%t(feat[ ,col_names]))
+  new_coords <- t(proj_mat%*%t(xx))
   colnames(new_coords) <- colnames(coordinates)
 
   if(vis){

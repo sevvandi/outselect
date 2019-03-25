@@ -19,10 +19,14 @@ You can install outselect from github with:
 devtools::install_github("sevvandi/outselect")
 ```
 
-Example 1
----------
+Min-Max Normalization
+---------------------
 
-This example shows how to compute the meta-features and predict which outlier method is good for this dataset. For this example we use a dataset described in (Campos et al. 2016)
+These examples are related to the work in (Kandanaarachchi, Muñoz, and Smith-Miles 2019) and use Min-Max normalization and the outlier detection methods described in (Campos et al. 2016). For all examples we use the dataset *Arrhythmia\_withoutdupl\_05\_v05*, which is described in (Campos et al. 2016).
+
+### Example 1
+
+This example shows how to compute the meta-features and predict which outlier method is good for the dataset *Arrhythmia\_withoutdupl\_05\_v05*.
 
 ``` r
 library(outselect)
@@ -40,10 +44,9 @@ out
 #> [1,]  0.664
 ```
 
-Example 2
----------
+### Example 2
 
-This example shows how to plot the instance *Arrhythmia\_withoutdupl\_05\_v05* on the instance space.
+This example shows how to plot the instance *Arrhythmia\_withoutdupl\_05\_v05* on the Min-Max instance space.
 
 ``` r
 library(outselect)
@@ -60,6 +63,62 @@ PlotNewInstance(svmout, feat, vis=TRUE)
 
     #>            x          y
     #> 1 0.07454883 -0.3991142
+
+Min-Max and Median-IQR normalization methods
+--------------------------------------------
+
+These examples are related to the work in (Kandanaarachchi et al. 2018). We use Min-Max and Median-IQR normalization methods for feature computation. For the instance space we use the following normalization and outlier detection method combinations:
+
+1.  Ensemble Median-IQR
+2.  LOF Min-Max
+3.  KNN Median-IQR
+4.  FAST ABOD Min-Max
+5.  iForest Median-IQR
+6.  KDEOS Median-IQR
+7.  KDEOS Min-Max and
+8.  LDF Min-Max
+
+Again, for all examples we use the dataset *Arrhythmia\_withoutdupl\_05\_v05*, which is described in (Campos et al. 2016).
+
+### Example 3
+
+This example shows how to compute the meta-features and predict which outlier-normalization combination is good for the dataset *Arrhythmia\_withoutdupl\_05\_v05*.
+
+``` r
+library(outselect)
+data(Arrhythmia_withoutdupl_05_v05)
+dat <- Arrhythmia_withoutdupl_05_v05
+feat <- ComputeMetaFeaturesAll(dat)
+#> [1] "Computing 346 features. This will take some time."
+fit <- TrainModels(d=2,1,1)
+#> [1] "Training models on meta-features. This will take some time."
+out <- PredictPerformance(feat, fit)
+out
+#>      Ensemble_Median_IQR LOF_Min_Max KNN_Median_IQR FAST_ABOD_Min_Max
+#> [1,]               0.522       0.544          0.552             0.768
+#>      iForest_Median_IQR KDEOS_Median_IQR KDEOS_Min_Max LDF_Min_Max
+#> [1,]              0.472            0.002         0.018       0.144
+```
+
+### Example 4
+
+This example plots the same instance in the outlier-normalization algorithm instance space.
+
+``` r
+library(outselect)
+data(Arrhythmia_withoutdupl_05_v05)
+dat <- Arrhythmia_withoutdupl_05_v05
+feat <- ComputeMetaFeaturesAll(dat)
+#> [1] "Computing 346 features. This will take some time."
+svmout <- InstSpace(d=2)
+#> [1] "Training 8 SVMS for outlier detection methods. This will take some time."
+PlotNewInstance(svmout, feat, vis=TRUE)
+```
+
+<img src="man/figures/README-example4-1.png" width="100%" />
+
+    #>            x        y
+    #> 1 -0.5563485 2.851412
 
 References
 ----------
