@@ -86,7 +86,7 @@ CorrPrRoc <- function(m=1){
   return(cor_vals)
 }
 
-
+#'@export
 DifficultyDiversitySpace <- function(d=2, rocpr=1){
   if((d!=1)&(d!=2)){
     stop("Invalid d. d should equal 1 or 2.")
