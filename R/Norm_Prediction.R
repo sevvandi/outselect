@@ -136,7 +136,7 @@ CrossValidateSensitivityToNorm <- function(rocpr=1, xi=0.05, n=10){
 }
 
 
-
+#'@export
 PredictNormMethod <- function(rocpr=1, xi=0.05, n=5, method_nums=1:14){
   # Predict normalization method, either Min_Max or Median_IQR
   if((rocpr!=1)&(rocpr!=2)){

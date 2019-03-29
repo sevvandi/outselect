@@ -523,6 +523,7 @@ CrossValidateSVM <- function(d=1,n=5){
 
   }
 
+  algo_names <- colnames(perfs)
   # Cross validation on file source as many variants of the same file exist
   file_source <-GetFileSources(filenames)
   uniq_f_s <- unique(file_source)
@@ -562,6 +563,7 @@ CrossValidateSVM <- function(d=1,n=5){
   out$mean_acc <- apply(result_table, 2, mean)*100
   out$d <- d
   out$coordinates <- coordinates
+  out$algonames <- algo_names
   return(out)
 }
 
