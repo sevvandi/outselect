@@ -166,8 +166,8 @@ PredictNormMethod <- function(rocpr=1, xi=0.05, n=5, method_nums=1:14){
   }
 
   col_nums <- 1:dim(feat)[2]
-  sds <- apply(feat, 2, sd)
-  rm_cols <- c(1, which(sds==0)) # to remove the filename
+  sds <- apply(feat[,-1], 2, sd)
+  rm_cols <- c(1, which(sds==0)+1) # to remove the filename
   col_nums <- setdiff(col_nums,rm_cols)
   ftrs <- feat[ ,-rm_cols]
   cat("Using all", length(col_nums), "features. This will take REALLY LONG!  \n")
@@ -176,6 +176,7 @@ PredictNormMethod <- function(rocpr=1, xi=0.05, n=5, method_nums=1:14){
   methods <- c()
   RF.accuracy.all <- matrix(0, nrow=n, ncol=length(method_nums))
   default_acc <- rep(0, length(method_nums))
+  cat("Starting ", n, " Fold Cross Validation. \n")
   for(i in method_nums){
     st <- 2*i-1
     en <- st + 1
@@ -206,6 +207,7 @@ PredictNormMethod <- function(rocpr=1, xi=0.05, n=5, method_nums=1:14){
     folds <- cut(seq(1,length(unique.sources)),breaks=n,labels=FALSE)
 
     for(kk in 1:n){
+      cat("Method ", i, ", Fold ", kk, "\n")
       #Segement your data for n fold CV
       testSources <- new.order[which(folds==kk,arr.ind=TRUE)]
       testIndices <- which(file_sources %in% testSources)

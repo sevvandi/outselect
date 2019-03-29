@@ -13,8 +13,10 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# outselect
- [![Travis build status](https://travis-ci.org/sevvandi/outselect.svg?branch=master)](https://travis-ci.org/sevvandi/outselect)
+# outselect 
+
+
+[![Travis build status](https://travis-ci.org/sevvandi/outselect.svg?branch=master)](https://travis-ci.org/sevvandi/outselect)
 
 The goal of outselect (outlier detection method selection) is to select  suitable outlier detection methods for a given dataset using meta-features. The functionality is available to reproduce some instance space results in our papers [@normalizationoutliers] and [@outliersinstance].   
 
@@ -30,11 +32,15 @@ You can install  outselect from github with:
 devtools::install_github("sevvandi/outselect")
 ```
 
-## Min-Max Normalization 
+## Features
+Details on features can be found [here.](./Features.html)
+
+
+## Min-Max Normalization
 These examples are related to the work in [@outliersinstance] and use Min-Max normalization and the outlier detection methods described in [@campos2016evaluation]. For all examples we use the dataset *Arrhythmia_withoutdupl_05_v05*, which is described in [@campos2016evaluation].
 
 ### Example 1
-This example shows how to compute the meta-features and predict which outlier method is good for the dataset *Arrhythmia_withoutdupl_05_v05*. 
+This example shows how to compute the meta-features and predict which outlier method is good for the dataset *Arrhythmia_withoutdupl_05_v05*.
 
 ```{r example1}
 library(outselect)
@@ -68,12 +74,12 @@ These examples are related to the work in [@normalizationoutliers]. We use Min-M
 5. iForest Median-IQR
 6. KDEOS Median-IQR
 7. KDEOS Min-Max and
-8. LDF Min-Max 
+8. LDF Min-Max
 
 Again, for all examples we use the dataset *Arrhythmia_withoutdupl_05_v05*, which is described in [@campos2016evaluation].
 
 ### Example 3
-This example shows how to compute the meta-features and predict which outlier-normalization combination is good for the dataset *Arrhythmia_withoutdupl_05_v05*. 
+This example shows how to compute the meta-features and predict which outlier-normalization combination is good for the dataset *Arrhythmia_withoutdupl_05_v05*.
 
 ```{r example3}
 library(outselect)
@@ -86,7 +92,7 @@ out
 ```
 
 ### Example 4
-This example plots the same instance in the outlier-normalization algorithm instance space. 
+This example plots the same instance in the outlier-normalization algorithm instance space.
 ```{r example4}
 library(outselect)
 data(Arrhythmia_withoutdupl_05_v05)

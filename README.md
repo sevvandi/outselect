@@ -19,6 +19,11 @@ You can install outselect from github with:
 devtools::install_github("sevvandi/outselect")
 ```
 
+Features
+--------
+
+Details on features can be found [here.](./Features.html)
+
 Min-Max Normalization
 ---------------------
 
