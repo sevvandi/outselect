@@ -22,7 +22,7 @@ devtools::install_github("sevvandi/outselect")
 Features
 --------
 
-Details on features can be found [here.](./Features.html)
+Details on features can be found [here.](./Features.Rmd)
 
 Min-Max Normalization
 ---------------------

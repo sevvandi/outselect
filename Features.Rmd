@@ -1,6 +1,6 @@
 ---
 title: "Features"
-output: html_document
+output: github_document
 bibliography: Features-references.bib
 ---
 
