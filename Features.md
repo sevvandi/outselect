@@ -38,7 +38,7 @@ References
 
 Csardi, Gabor, and Tamas Nepusz. 2006. “The Igraph Software Package for Complex Network Research.” *InterJournal, Complex Systems* 1695 (5): 1–9.
 
-Duong, Tarn. 2018. “Ks: Kernel Density Estimation for Bivariate Data.”
+Duong, Tarn. 2018. *Ks: Kernel Smoothing*. <https://CRAN.R-project.org/package=ks>.
 
 Ester, Martin, Hans-Peter Kriegel, Jörg Sander, Xiaowei Xu, and others. 1996. “A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise.” In *KDD*, 96:226–31. 34.
 
