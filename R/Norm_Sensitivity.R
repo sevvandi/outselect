@@ -406,7 +406,7 @@ SensitivityToNormMixedMod <- function(rocpr=1, ds=FALSE, pp=FALSE){
 
 }
 
-#'@export
+#' @export
 IsNormalizingBetter <- function(){
 
   e <- new.env()

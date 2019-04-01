@@ -4,7 +4,7 @@
 \alias{SensitivityToNormMixedMod}
 \title{Fits a mixed effects model to account for normalization methods and outlier methods accounting for the dataset variants}
 \usage{
-SensitivityToNormMixedMod(rocpr = 1)
+SensitivityToNormMixedMod(rocpr = 1, ds = FALSE, pp = FALSE)
 }
 \arguments{
 \item{rocpr}{If \code{rocpr=1} then area under ROC curve is used as the performance measure.  If \code{rocpr=2} area under PR curve is used.}
