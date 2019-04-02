@@ -279,7 +279,7 @@ Kurtosis_stats <- function(z){
 
 
 
-
+#' @export
 unitize_1 <- function(z) {
   # min-max normalization - 0 -1
   min.z <- min(z)
@@ -299,6 +299,7 @@ unitize_2 <- function(z) {
   (z - mean.z )/sd.z
 }
 
+#' @export
 unitize_3 <- function(z) {
   # Median and IQR normalization
   median.z <- median(z)
