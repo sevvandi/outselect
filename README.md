@@ -67,7 +67,7 @@ PlotNewInstance(svmout, feat, vis=TRUE)
 <img src="man/figures/README-example2-1.png" width="100%" />
 
     #>            x          y
-    #> 1 0.07454883 -0.3991142
+    #> 1 0.07560347 -0.3986179
 
 Min-Max and Median-IQR normalization methods
 --------------------------------------------

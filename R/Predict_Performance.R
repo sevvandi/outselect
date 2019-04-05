@@ -721,12 +721,13 @@ PlotNewInstance <- function(svm_out, feat, vis=TRUE){
 
   if(d==1){
     # MIN_MAX NORMALIZATION
+    # This needs to be updated
     A = c(-0.0460080647739237,0.120232405807619,-0.0861514033600992,-0.0938346307541302,0.185445325925922,0.173687193359812,0.354286254682629,-0.284658120332950,0.0379944148808954,-0.207772324871124,-0.202465281281364,-0.0821669746311897,0.184527360695248,-0.132454773210594)
-    proj_mat <- matrix( A, nrow=2, byrow=TRUE )
+    proj_mat <- matrix( A, nrow=2) # , byrow=TRUE
     col_names <- c("OPO_Res_ResOut_Median_1", "OPO_Den_Out_95P_1", "Mean_Entropy_Attr", "OPO_Res_Out_Mean_1", "OPO_GDeg_PO_Mean_1", "IQR_TO_SD_95", "OPO_GDeg_Out_Mean_1" )
     x_bef <- feat[ , col_names]
-    xx <- renormalize(x_bef, d)
-    #xx <- x_bef
+    #xx <- renormalize(x_bef, d)
+    xx <- x_bef
   }else{
     # ALL NORMALIZATION METHODS
     col_names <- c("OPO_Res_ResOut_Mean_3","OPO_GDeg_Out_Mean_3", "OPO_GComp_PO_Mean_1", "MEAN_PROD_IQR", "OPO_Res_Out_Mean_3", "OPO_Res_ResOut_Max_3",   "OPO_Out_LocDenOut_1_3" )
