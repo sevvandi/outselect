@@ -162,6 +162,7 @@ PredictNormMethod <- function(rocpr=1, xi=0.05, n=5, method_nums=1:14){
     filenames <- features_all_pr$filename
     feat <- features_all_pr
     data("perf_vals_pr_all", envir=e)
+    num_methods <- dim(perf_vals_pr_all)[2]/4
     perfs <- perf_vals_pr_all[ ,2*(1:(2*num_methods))]
   }
 
